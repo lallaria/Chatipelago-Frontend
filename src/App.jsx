@@ -4,6 +4,7 @@ import { MessageEditor } from './components/MessageEditor'
 import { ConsoleOutput } from './components/ConsoleOutput'
 import { ZipGenerator } from './components/ZipGenerator'
 import { ConnectionStatus } from './components/ConnectionStatus'
+import { ThemeToggle } from './components/ThemeToggle'
 import { HomeLanding } from './components/HomeLanding'
 
 const tabs = [
@@ -20,9 +21,9 @@ export const App = () => {
   const ActiveComponent = tabs.find(tab => tab.id === activeTab)?.component
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-base-200 text-base-content">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-base-100 shadow-sm border-b border-base-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-4">
@@ -32,17 +33,20 @@ export const App = () => {
                   alt="Chatipelago" 
                   className="w-8 h-8"
                 />
-                <h1 className="text-xl font-bold text-gray-900">Chatipelago!</h1>
+                <h1 className="text-xl font-bold">Chatipelago!</h1>
               </div>
             </div>
             
-            <ConnectionStatus />
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+              <ConnectionStatus />
+            </div>
           </div>
         </div>
       </header>
 
       {/* Navigation */}
-      <nav className="bg-white border-b border-gray-200">
+      <nav className="bg-base-100 border-b border-base-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex space-x-8">
             {tabs.map((tab) => (
@@ -51,8 +55,8 @@ export const App = () => {
                 onClick={() => setActiveTab(tab.id)}
                 className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                   activeTab === tab.id
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-base-content/60 hover:text-base-content hover:border-base-300'
                 }`}
               >
                 {tab.label}
@@ -68,13 +72,13 @@ export const App = () => {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 mt-12">
+      <footer className="bg-base-100 border-t border-base-300 mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <div className="text-sm text-gray-500">
+            <div className="text-sm opacity-70">
               Chatipelago Frontend v1.0.0
             </div>
-            <div className="text-sm text-gray-500">
+            <div className="text-sm opacity-70">
               Connected to localhost:8015
             </div>
           </div>
