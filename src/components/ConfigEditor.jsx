@@ -233,27 +233,43 @@ export const ConfigEditor = () => {
         </div>
 
         {/* Streamer.bot Config */}
-        {localConfig.streamerbot && (
-          <div className="bg-white shadow rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Streamer.bot Config</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Port *
-                </label>
-                <input
-                  type="number"
-                  value={localConfig.streamerbotConfig?.port || ''}
-                  onChange={(e) => handleInputChange('streamerbotConfig', 'port', parseInt(e.target.value))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="8014"
-                  min="1"
-                  max="65535"
-                />
-                {validationErrors.streamerbotConfig?.port && (
-                  <p className="text-red-500 text-sm mt-1">{validationErrors.streamerbotConfig.port}</p>
-                )}
-              </div>
+            {localConfig.streamerbot && (
+              <div className="bg-white shadow rounded-lg p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Streamer.bot Config</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Host *
+                    </label>
+                    <input
+                      type="text"
+                      value={localConfig.streamerbotConfig?.host || ''}
+                      onChange={(e) => handleInputChange('streamerbotConfig', 'host', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="localhost"
+                    />
+                    {validationErrors.streamerbotConfig?.host && (
+                      <p className="text-red-500 text-sm mt-1">{validationErrors.streamerbotConfig.host}</p>
+                    )}
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Port *
+                    </label>
+                    <input
+                      type="number"
+                      value={localConfig.streamerbotConfig?.port || ''}
+                      onChange={(e) => handleInputChange('streamerbotConfig', 'port', parseInt(e.target.value))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="8014"
+                      min="1"
+                      max="65535"
+                    />
+                    {validationErrors.streamerbotConfig?.port && (
+                      <p className="text-red-500 text-sm mt-1">{validationErrors.streamerbotConfig.port}</p>
+                    )}
+                  </div>
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -284,24 +300,38 @@ export const ConfigEditor = () => {
                 )}
               </div>
               
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Retries
+                </label>
+                <input
+                  type="number"
+                  value={localConfig.streamerbotConfig?.retries || ''}
+                  onChange={(e) => handleInputChange('streamerbotConfig', 'retries', parseInt(e.target.value))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="5"
+                  min="0"
+                />
+              </div>
+              
               <div className="flex items-center space-x-4">
                 <label className="flex items-center">
                   <input
                     type="checkbox"
-                    checked={localConfig.streamerbotConfig?.autoConnect || false}
-                    onChange={(e) => handleInputChange('streamerbotConfig', 'autoConnect', e.target.checked)}
+                    checked={localConfig.streamerbotConfig?.immediate || false}
+                    onChange={(e) => handleInputChange('streamerbotConfig', 'immediate', e.target.checked)}
                     className="mr-2"
                   />
-                  Auto Connect
+                  Connect Immediately
                 </label>
                 <label className="flex items-center">
                   <input
                     type="checkbox"
-                    checked={localConfig.streamerbotConfig?.reconnect || false}
-                    onChange={(e) => handleInputChange('streamerbotConfig', 'reconnect', e.target.checked)}
+                    checked={localConfig.streamerbotConfig?.autoReconnect || false}
+                    onChange={(e) => handleInputChange('streamerbotConfig', 'autoReconnect', e.target.checked)}
                     className="mr-2"
                   />
-                  Reconnect
+                  Auto Reconnect
                 </label>
               </div>
             </div>
