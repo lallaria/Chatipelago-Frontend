@@ -10,11 +10,6 @@ export const ThemeToggle = () => {
     const initial = stored && THEMES.includes(stored) ? stored : 'dark'
     setTheme(initial)
     document.documentElement.setAttribute('data-theme', initial)
-    if (initial === 'dark' || initial === 'dracula' || initial === 'halloween') {
-      document.documentElement.classList.add('dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-    }
   }, [])
 
   const nextTheme = () => {
@@ -27,11 +22,6 @@ export const ThemeToggle = () => {
     setTheme(t)
     localStorage.setItem('theme', t)
     document.documentElement.setAttribute('data-theme', t)
-    if (t === 'dark' || t === 'dracula' || t === 'halloween') {
-      document.documentElement.classList.add('dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-    }
   }
 
   return (

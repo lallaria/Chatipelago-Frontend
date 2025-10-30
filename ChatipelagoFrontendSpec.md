@@ -141,18 +141,18 @@ The Chatipelago client supports one integration mode at a time, controlled by co
 - Save/Revert buttons
 - Search/filter messages
 
-### 5. Zip File Generation
-**Purpose**: Generate and download zip files using server-side program with user-provided YAML input.
+### 5. APworld File Generation
+**Purpose**: Generate and download an apworld launched with a subprocess on the same server as the frontend, with user-provided YAML input.
 
 **Implementation**:
 - File upload for YAML input files (max 1MB)
-- Server-side processing using subprocess: `touch testing.zip`
+- Front end calls subprocess: `/apworldgen/buildapworld.py`
 - Progress indicator during generation
-- Download link for generated zip file
+- Download link for generated apworld
 - File cleanup after download (stored in `/tmp`)
 
 **YAML Schema**:
-- 5 lists containing exactly: 60 items, 10 progitems, 10 trapitems, 50 locations, 10 proglocations
+- 5 lists containing exactly: 60 items, 3 progitems, 3 trapitems, 50 locations, 10 proglocations
 - Client-side validation before upload
 
 **UI Components**:
@@ -199,8 +199,8 @@ The Chatipelago client supports one integration mode at a time, controlled by co
 - `GET /api/messages/:filename` - Retrieve specific message file
 - `PUT /api/messages/:filename` - Update specific message file
 - `POST /api/restart` - Restart Chatipelago client
-- `POST /api/generate-zip` - Generate zip file from YAML (subprocess: `touch testing.zip`)
-- `GET /api/download/:filename` - Download generated zip file
+- `POST /api/generate-zip` - Generate apworld from YAML (subprocess: `touch testing.zip`)
+- `GET /api/download/:filename` - Download generated apworld
 - `GET /api/console` - Server-Sent Events stream for console logs
 - `GET /api/status` - Connection status information
 
@@ -218,7 +218,7 @@ The Chatipelago client supports one integration mode at a time, controlled by co
 
 ### File Management
 - **Upload Directory**: `/tmp` for YAML files
-- **Generated Files**: `/tmp` for zip files
+- **Generated Files**: `/tmp` for apworlds
 - **File Size Limit**: 1MB maximum for YAML uploads
 - **Cleanup**: Automatic cleanup after download or timeout
 
@@ -290,7 +290,7 @@ chatipelago-frontend/
 │   │   ├── ConfigEditor.jsx
 │   │   ├── MessageEditor.jsx
 │   │   ├── ConsoleOutput.jsx
-│   │   ├── ZipGenerator.jsx
+│   │   ├── APworldGenerator.jsx
 │   │   └── ConnectionStatus.jsx
 │   ├── hooks/
 │   │   ├── useSSE.js

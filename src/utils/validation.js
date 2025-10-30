@@ -110,12 +110,12 @@ export const validateYamlSchema = (yamlData) => {
     errors.push('items must contain exactly 60 items')
   }
 
-  if (!yamlData.progitems || !Array.isArray(yamlData.progitems) || yamlData.progitems.length !== 10) {
-    errors.push('progitems must contain exactly 10 items')
+  if (!yamlData.progitems || !Array.isArray(yamlData.progitems) || yamlData.progitems.length !== 3) {
+    errors.push('progitems must contain exactly 3 items')
   }
 
-  if (!yamlData.trapitems || !Array.isArray(yamlData.trapitems) || yamlData.trapitems.length !== 10) {
-    errors.push('trapitems must contain exactly 10 items')
+  if (!yamlData.trapitems || !Array.isArray(yamlData.trapitems) || yamlData.trapitems.length !== 3) {
+    errors.push('trapitems must contain exactly 3 items')
   }
 
   if (!yamlData.locations || !Array.isArray(yamlData.locations) || yamlData.locations.length !== 50) {

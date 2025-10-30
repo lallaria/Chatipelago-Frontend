@@ -1,7 +1,22 @@
 {
   "name": "chatipelago-frontend",
   "private": true,
-  "version": "1.0.1",
+  "version": "1.0.2",
+  "description": "Frontend for Chatipelago",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lallaria/Chatipelago-Frontend.git"
+  },
+  "homepage": "https://github.com/lallaria/Chatipelago-Frontend#readme",
+  "bugs": {
+    "url": "https://github.com/lallaria/Chatipelago-Frontend/issues"
+  },
+  "keywords": [
+    "chatipelago"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",

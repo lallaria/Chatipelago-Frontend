@@ -38,8 +38,8 @@ npm run preview
 
 ### Expected Admin API Endpoints (8015)
 - `GET /api/config`, `PUT /api/config`
-- `GET /api/messages`, `GET/PUT /api/messages/:filename`
-- `POST /api/restart`, `POST /api/generate-zip`, `GET /api/download/:filename`
+- `GET /api/messages`,
+- `POST /api/restart`, 
 - `GET /api/console` (SSE), `GET /api/status`
 
 ### Security Notes
@@ -50,7 +50,7 @@ npm run preview
 ### Project Structure (excerpt)
 ```
 src/
-  components/ (ConfigEditor, MessageEditor, ConsoleOutput, ZipGenerator, ConnectionStatus)
+  components/ (ConfigEditor, MessageEditor, ConsoleOutput, APworldGenerator, ConnectionStatus)
   hooks/ (useSSE, useConfig)
   services/ (api, sse)
   context/ (AppContext)

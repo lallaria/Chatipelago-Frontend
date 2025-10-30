@@ -1,0 +1,133 @@
+from __future__ import annotations
+
+import json
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from typing import Any
+
+try:
+    import yaml  # type: ignore
+except Exception as exc:  # pragma: no cover
+    raise RuntimeError("PyYAML is required. Install with: pip install pyyaml") from exc
+
+from generateapworld import (
+    YAML_PATH,
+    write_region_names,
+    write_item_names,
+    run_build_subprocess,
+    move_output,
+    DEST_OUTPUT,
+)
+
+
+class _Handler(BaseHTTPRequestHandler):
+    server_version = "APWorldServer/1.0"
+
+    def _send_json(self, status: int, payload: dict[str, Any]) -> None:
+        body = json.dumps(payload).encode("utf-8")
+        self.send_response(status)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.end_headers()
+        self.wfile.write(body)
+
+    def do_OPTIONS(self) -> None:  # type: ignore[override]
+        self.send_response(204)
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.end_headers()
+
+    def do_POST(self) -> None:  # type: ignore[override]
+        try:
+            if self.path.rstrip("/") != "/apworld/build":
+                self._send_json(404, {"error": "Not found"})
+                return
+
+            content_length = int(self.headers.get("Content-Length", "0"))
+            raw = self.rfile.read(content_length)
+            ctype = (self.headers.get("Content-Type") or "").split(";")[0].strip()
+
+            # Accept either raw YAML (preferred) or JSON {yaml: "..."} or {data: {...}}
+            if ctype == "application/json":
+                obj = json.loads(raw.decode("utf-8") or "{}")
+                if isinstance(obj.get("yaml"), str):
+                    yaml_text = obj["yaml"]
+                elif isinstance(obj.get("data"), dict):
+                    yaml_text = yaml.safe_dump(obj["data"], sort_keys=False, allow_unicode=True)
+                else:
+                    self._send_json(400, {"error": "Expected 'yaml' string or 'data' object"})
+                    return
+            else:
+                yaml_text = raw.decode("utf-8")
+
+            # Validate/normalize YAML minimally and persist to expected path
+            try:
+                parsed = yaml.safe_load(yaml_text) or {}
+                # Ensure expected nested keys exist; frontend should provide them
+                if not isinstance(parsed, dict) or "items" not in parsed or "locations" not in parsed:
+                    self._send_json(400, {"error": "YAML must contain 'items' and 'locations'"})
+                    return
+                normalized = yaml.safe_dump(parsed, sort_keys=False, allow_unicode=True)
+            except Exception as exc:
+                self._send_json(400, {"error": f"Invalid YAML: {exc}"})
+                return
+
+            YAML_PATH.write_text(normalized, encoding="utf-8")
+
+            # Generate files and run build
+            items = parsed.get("items") or {}
+            locations = parsed.get("locations") or {}
+            if not isinstance(items, dict) or not isinstance(locations, dict):
+                self._send_json(400, {"error": "'items' and 'locations' must be mappings"})
+                return
+
+            write_region_names(locations)
+            write_item_names(items)
+            code = run_build_subprocess()
+            if code != 0:
+                self._send_json(500, {"error": "Build failed", "code": code})
+                return
+            move_output()
+
+            self._send_json(200, {"ok": True, "artifact": str(DEST_OUTPUT)})
+        except Exception as exc:  # pragma: no cover
+            self._send_json(500, {"error": str(exc)})
+
+    def do_GET(self) -> None:  # type: ignore[override]
+        try:
+            if self.path.rstrip("/") != "/apworld/download":
+                self._send_json(404, {"error": "Not found"})
+                return
+
+            if not DEST_OUTPUT.exists():
+                self._send_json(404, {"error": "Artifact not found"})
+                return
+
+            data = DEST_OUTPUT.read_bytes()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/octet-stream")
+            self.send_header("Content-Disposition", "attachment; filename=chatipelago.apworld")
+            self.send_header("Content-Length", str(len(data)))
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            self.wfile.write(data)
+        except Exception as exc:  # pragma: no cover
+            self._send_json(500, {"error": str(exc)})
+
+
+def serve(port: int = 8123) -> None:
+    httpd = ThreadingHTTPServer(("0.0.0.0", port), _Handler)
+    print(f"Serving APWorld builder on http://0.0.0.0:{port}")
+    try:
+        httpd.serve_forever()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        httpd.server_close()
+
+
+if __name__ == "__main__":
+    serve(8123)
+
+
