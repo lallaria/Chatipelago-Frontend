@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useConfig } from '../hooks/useConfig'
 import { validateConfig } from '../utils/validation'
+import ReactMarkdown from 'react-markdown'
+import { useMemo } from 'react'
 
 export const ConfigEditor = () => {
   const { config, loading, error, saving, saveConfig, updateConfig, resetConfig } = useConfig()
@@ -8,6 +10,10 @@ export const ConfigEditor = () => {
   const [validationErrors, setValidationErrors] = useState({})
   const [saveMessage, setSaveMessage] = useState('')
   const [hasChanges, setHasChanges] = useState(false)
+  const [actionsText, setActionsText] = useState('')
+  const [actionsTextError, setActionsTextError] = useState('')
+  const [mixitupReadme, setMixitupReadme] = useState('')
+  const [mixitupReadmeErr, setMixitupReadmeErr] = useState('')
 
   useEffect(() => {
     if (config) {
@@ -15,6 +21,39 @@ export const ConfigEditor = () => {
       setHasChanges(false)
     }
   }, [config])
+
+  // Fetch Streamer.bot actions text when Streamer.bot integration is enabled
+  useEffect(() => {
+    const fetchActionsText = async () => {
+      try {
+        setActionsTextError('')
+        const res = await fetch('/api/streamerbot/actions-text', { credentials: 'include' })
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        const data = await res.json()
+        setActionsText(data?.text || '')
+      } catch (e) {
+        setActionsText('')
+        setActionsTextError('Failed to load Streamer.bot actions text')
+      }
+    }
+
+    if (localConfig?.streamerbot) {
+      fetchActionsText()
+    } else {
+      setActionsText('')
+      setActionsTextError('')
+    }
+  }, [localConfig?.streamerbot])
+
+  // Fetch and cache MixItUp README (markdown)
+  useEffect(() => {
+    if (!localConfig?.mixitup) return
+    setMixitupReadmeErr('')
+    fetch('/mixitup_files/README.md').then(async r => {
+      if (!r.ok) throw new Error(`HTTP ${r.status}`)
+      setMixitupReadme(await r.text())
+    }).catch(() => setMixitupReadmeErr('Could not load MixItUp instructions'))
+  }, [localConfig?.mixitup])
 
   const handleInputChange = (section, field, value) => {
     setLocalConfig(prev => ({
@@ -142,6 +181,37 @@ export const ConfigEditor = () => {
                 Enable Streamer.bot Integration
               </label>
             </div>
+
+            {localConfig.streamerbot && (
+              <div className="mt-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Streamer.bot Import String
+                </label>
+                <div className="flex items-start gap-2">
+                  <textarea
+                    readOnly
+                    value={actionsText}
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md font-mono text-sm bg-gray-50"
+                  />
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      try {
+                        await navigator.clipboard.writeText(actionsText || '')
+                      } catch {}
+                    }}
+                    className="shrink-0 px-3 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
+                    disabled={!actionsText}
+                  >
+                    Copy
+                  </button>
+                </div>
+                {actionsTextError && (
+                  <p className="text-red-500 text-sm mt-1">{actionsTextError}</p>
+                )}
+              </div>
+            )}
             
             {localConfig.mixitup && (
               <div>
@@ -162,6 +232,34 @@ export const ConfigEditor = () => {
             )}
           </div>
         </div>
+
+        {/* MixItUp Import Instructions & Download */}
+        {localConfig.mixitup && (
+          <div className="bg-white shadow rounded-lg p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">MixItUp Import Instructions & Files</h3>
+            <a
+              href="/mixitup_files/mixitup_files.zip"
+              download
+              className="block w-fit mb-6 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-5 rounded transition"
+            >
+              Download MixItUp Files (zip)
+            </a>
+            {mixitupReadmeErr ? (
+              <div className="text-red-500 text-sm">{mixitupReadmeErr}</div>
+            ) : (
+              <div className="prose max-w-none">
+                <ReactMarkdown
+                  children={mixitupReadme}
+                  components={{
+                    img: ({node, ...props}) => (
+                      <img {...props} style={{maxWidth:'100%',border:'1px solid #ccc',borderRadius:'6px'}} />
+                    )
+                  }}
+                />
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Connection Info */}
         <div className="bg-white shadow rounded-lg p-6">

@@ -4,8 +4,10 @@ import { MessageEditor } from './components/MessageEditor'
 import { ConsoleOutput } from './components/ConsoleOutput'
 import { ZipGenerator } from './components/ZipGenerator'
 import { ConnectionStatus } from './components/ConnectionStatus'
+import { HomeLanding } from './components/HomeLanding'
 
 const tabs = [
+  { id: 'home', label: 'Home', component: HomeLanding },
   { id: 'config', label: 'Configuration', component: ConfigEditor },
   { id: 'messages', label: 'Messages', component: MessageEditor },
   { id: 'console', label: 'Console', component: ConsoleOutput },
@@ -13,7 +15,7 @@ const tabs = [
 ]
 
 export const App = () => {
-  const [activeTab, setActiveTab] = useState('config')
+  const [activeTab, setActiveTab] = useState('home')
 
   const ActiveComponent = tabs.find(tab => tab.id === activeTab)?.component
 
@@ -25,10 +27,12 @@ export const App = () => {
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">C</span>
-                </div>
-                <h1 className="text-xl font-bold text-gray-900">Chatipelago Frontend</h1>
+                <img 
+                  src="https://img.prismativerse.com/icon.png" 
+                  alt="Chatipelago" 
+                  className="w-8 h-8"
+                />
+                <h1 className="text-xl font-bold text-gray-900">Chatipelago!</h1>
               </div>
             </div>
             
@@ -60,7 +64,7 @@ export const App = () => {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto py-6">
-        {ActiveComponent && <ActiveComponent />}
+        {ActiveComponent && <ActiveComponent onNavigate={setActiveTab} />}
       </main>
 
       {/* Footer */}
