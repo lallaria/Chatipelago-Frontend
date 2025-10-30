@@ -134,12 +134,12 @@ export const MessageEditor = () => {
   return (
     <div className="max-w-7xl mx-auto p-6">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Message Template Editor</h2>
-        <p className="text-gray-600">Edit chat message templates for different game events</p>
+        <h2 className="text-2xl font-bold font-bold mb-2">Message Template Editor</h2>
+        <p className="text-base-content/70">Edit chat message templates for different game events</p>
       </div>
 
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        <div className="alert alert-error px-4 py-3 rounded mb-4">
           {error}
         </div>
       )}
@@ -147,8 +147,8 @@ export const MessageEditor = () => {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* File Browser */}
         <div className="lg:col-span-1">
-          <div className="bg-white shadow rounded-lg p-4">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Message Files</h3>
+          <div className="card bg-base-100 shadow-lg p-4">
+            <h3 className="text-lg font-semibold font-bold mb-4">Message Files</h3>
             
             <div className="mb-4">
               <input
@@ -156,7 +156,7 @@ export const MessageEditor = () => {
                 placeholder="Search files..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 input input-bordered focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
@@ -165,10 +165,10 @@ export const MessageEditor = () => {
                 <button
                   key={file}
                   onClick={() => loadFileContent(file)}
-                  className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
+                    className={`btn btn-sm justify-start w-full ${
                     selectedFile === file
-                      ? 'bg-blue-100 text-blue-700 border border-blue-300'
-                      : 'hover:bg-gray-100 text-gray-700'
+                      ? 'btn-active'
+                      : 'btn-ghost'
                   }`}
                 >
                   {file.replace('.json', '')}
@@ -181,9 +181,9 @@ export const MessageEditor = () => {
         {/* Editor */}
         <div className="lg:col-span-3">
           {selectedFile && fileContent ? (
-            <div className="bg-white shadow rounded-lg p-6">
+            <div className="card bg-base-100 shadow-lg p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">
+                <h3 className="text-lg font-semibold font-bold">
                   Editing: {selectedFile}
                 </h3>
                 <div className="flex items-center space-x-2">
@@ -193,14 +193,14 @@ export const MessageEditor = () => {
                   <button
                     onClick={handleRevert}
                     disabled={!hasChanges}
-                    className="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="btn btn-sm btn-ghost disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Revert
                   </button>
                   <button
                     onClick={handleSave}
                     disabled={saving || !hasChanges || validationErrors.length > 0}
-                    className="px-3 py-1 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="btn btn-sm btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {saving ? 'Saving...' : 'Save'}
                   </button>
@@ -209,7 +209,7 @@ export const MessageEditor = () => {
 
               {/* Validation Errors */}
               {validationErrors.length > 0 && (
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                <div className="alert alert-error px-4 py-3 rounded mb-4">
                   <h4 className="font-semibold mb-2">Validation Errors:</h4>
                   <ul className="list-disc list-inside space-y-1">
                     {validationErrors.map((error, index) => (
@@ -220,11 +220,11 @@ export const MessageEditor = () => {
               )}
 
               {/* Template Variables Reference */}
-              <div className="bg-gray-50 border border-gray-200 rounded-md p-4 mb-4">
-                <h4 className="font-semibold text-gray-900 mb-2">Available Template Variables:</h4>
+              <div className="card bg-base-200 border border-base-300 p-4 mb-4">
+                <h4 className="font-semibold font-bold mb-2">Available Template Variables:</h4>
                 <div className="flex flex-wrap gap-2">
                   {validVariables.map((variable) => (
-                    <code key={variable} className="bg-gray-200 px-2 py-1 rounded text-sm">
+                    <code key={variable} className="bg-base-300 px-2 py-1 rounded text-sm">
                       {variable}
                     </code>
                   ))}
@@ -234,10 +234,10 @@ export const MessageEditor = () => {
               {/* Messages Editor */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h4 className="font-semibold text-gray-900">Messages</h4>
+                  <h4 className="font-semibold font-bold">Messages</h4>
                   <button
                     onClick={addMessage}
-                    className="px-3 py-1 bg-green-600 text-white rounded-md text-sm hover:bg-green-700"
+                    className="btn btn-sm btn-success"
                   >
                     Add Message
                   </button>
@@ -249,14 +249,14 @@ export const MessageEditor = () => {
                       <textarea
                         value={message}
                         onChange={(e) => updateMessage(index, e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm"
+                        className="textarea textarea-bordered w-full font-mono text-sm"
                         rows="2"
                         placeholder="Enter message template..."
                       />
                     </div>
                     <button
                       onClick={() => removeMessage(index)}
-                      className="px-2 py-1 bg-red-500 text-white rounded-md text-sm hover:bg-red-600"
+                      className="btn btn-sm btn-error"
                     >
                       Remove
                     </button>
@@ -264,7 +264,7 @@ export const MessageEditor = () => {
                 ))}
 
                 {(!fileContent.messages || fileContent.messages.length === 0) && (
-                  <div className="text-gray-500 italic text-center py-4">
+                  <div className="text-base-content/60 italic text-center py-4">
                     No messages. Click "Add Message" to get started.
                   </div>
                 )}
@@ -273,13 +273,13 @@ export const MessageEditor = () => {
               {/* Live Preview */}
               {fileContent.messages && fileContent.messages.length > 0 && (
                 <div className="mt-6">
-                  <h4 className="font-semibold text-gray-900 mb-2">Live Preview</h4>
-                  <div className="bg-gray-100 border border-gray-200 rounded-md p-4">
+                  <h4 className="font-semibold font-bold mb-2">Live Preview</h4>
+                  <div className="card bg-base-200 border border-base-300 p-4">
                     {fileContent.messages.map((message, index) => (
-                      <div key={index} className="mb-2 p-2 bg-white rounded border">
-                        <div className="text-sm text-gray-600 mb-1">Message {index + 1}:</div>
+                      <div key={index} className="mb-2 p-2 card bg-base-100 border border-base-300">
+                        <div className="text-sm text-base-content/70 mb-1">Message {index + 1}:</div>
                         <div className="font-mono text-sm">
-                          {message || <span className="text-gray-400 italic">Empty message</span>}
+                          {message || <span className="text-base-content/50 italic">Empty message</span>}
                         </div>
                       </div>
                     ))}
@@ -288,8 +288,8 @@ export const MessageEditor = () => {
               )}
             </div>
           ) : (
-            <div className="bg-white shadow rounded-lg p-8 text-center">
-              <div className="text-gray-500">
+            <div className="card bg-base-100 shadow-lg p-8 text-center">
+              <div className="text-base-content/60">
                 {selectedFile ? 'Loading file content...' : 'Select a message file to edit'}
               </div>
             </div>

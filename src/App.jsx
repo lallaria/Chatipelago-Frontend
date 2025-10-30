@@ -6,6 +6,7 @@ import { ZipGenerator } from './components/ZipGenerator'
 import { ConnectionStatus } from './components/ConnectionStatus'
 import { ThemeToggle } from './components/ThemeToggle'
 import { HomeLanding } from './components/HomeLanding'
+import packageJson from '../package.json'
 
 const tabs = [
   { id: 'home', label: 'Home', component: HomeLanding },
@@ -19,6 +20,8 @@ export const App = () => {
   const [activeTab, setActiveTab] = useState('home')
 
   const ActiveComponent = tabs.find(tab => tab.id === activeTab)?.component
+  const appVersion = packageJson?.version || 'dev'
+  const connectedTo = import.meta.env.VITE_CONNECTED_TO || import.meta.env.VITE_ADMIN_API || ''
 
   return (
     <div className="min-h-screen bg-base-200 text-base-content">
@@ -48,21 +51,17 @@ export const App = () => {
       {/* Navigation */}
       <nav className="bg-base-100 border-b border-base-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex space-x-8">
+          <ul className="tabs tabs-boxed tabs-lg w-full justify-start gap-1 bg-base-200 p-2">
             {tabs.map((tab) => (
-              <button
+              <li
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                  activeTab === tab.id
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-base-content/60 hover:text-base-content hover:border-base-300'
-                }`}
+                className={`tab ${activeTab === tab.id ? 'tab-active' : ''}`}
               >
                 {tab.label}
-              </button>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       </nav>
 
@@ -76,11 +75,13 @@ export const App = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="text-sm opacity-70">
-              Chatipelago Frontend v1.0.0
+              Chatipelago Frontend v{appVersion}
             </div>
-            <div className="text-sm opacity-70">
-              Connected to localhost:8015
-            </div>
+            {connectedTo && (
+              <div className="text-sm opacity-70">
+                Connected to {connectedTo}
+              </div>
+            )}
           </div>
         </div>
       </footer>

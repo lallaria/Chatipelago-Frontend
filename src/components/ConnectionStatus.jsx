@@ -36,10 +36,10 @@ export const ConnectionStatus = () => {
   }, [])
 
   const getStatusColor = () => {
-    if (loading) return 'text-yellow-500'
-    if (error || !status) return 'text-red-500'
-    if (status?.status === 'connected') return 'text-green-500'
-    return 'text-gray-500'
+    if (loading) return 'text-warning'
+    if (error || !status) return 'text-error'
+    if (status?.status === 'connected') return 'text-success'
+    return 'text-base-content/50'
   }
 
   const getStatusText = () => {
@@ -70,13 +70,13 @@ export const ConnectionStatus = () => {
   }
 
   return (
-    <div className="bg-white shadow rounded-lg p-4">
+    <div className="card bg-base-100 shadow-sm p-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <div className={`w-3 h-3 rounded-full ${
-            loading ? 'bg-yellow-500 animate-pulse' :
-            error || !status ? 'bg-red-500' :
-            status?.status === 'connected' ? 'bg-green-500' : 'bg-gray-500'
+            loading ? 'bg-warning animate-pulse' :
+            error || !status ? 'bg-error' :
+            status?.status === 'connected' ? 'bg-success' : 'bg-base-300'
           }`}></div>
           <div>
             <div className="flex items-center space-x-2">
@@ -84,13 +84,13 @@ export const ConnectionStatus = () => {
                 {getStatusText()}
               </span>
               {status?.version && (
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-base-content/60">
                   v{status.version}
                 </span>
               )}
             </div>
             {error && (
-              <div className="text-xs text-red-600 mt-1">
+              <div className="text-xs text-error mt-1">
                 {error}
               </div>
             )}
@@ -99,7 +99,7 @@ export const ConnectionStatus = () => {
 
         <div className="flex items-center space-x-4">
           {status && (
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-base-content/70">
               <div>Uptime: {formatUptime(status.uptime)}</div>
               <div>Last checked: {formatLastChecked()}</div>
             </div>
@@ -108,7 +108,7 @@ export const ConnectionStatus = () => {
           <button
             onClick={handleReconnect}
             disabled={loading}
-            className="px-3 py-1 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn btn-primary btn-sm"
           >
             {loading ? 'Checking...' : 'Reconnect'}
           </button>

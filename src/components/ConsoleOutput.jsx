@@ -26,13 +26,13 @@ export const ConsoleOutput = () => {
   const getLevelColor = (level) => {
     switch (level) {
       case 'error':
-        return 'text-red-400'
+        return 'text-error'
       case 'warn':
-        return 'text-yellow-400'
+        return 'text-warning'
       case 'info':
-        return 'text-blue-400'
+        return 'text-info'
       default:
-        return 'text-green-400'
+        return 'text-success'
     }
   }
 
@@ -62,38 +62,38 @@ export const ConsoleOutput = () => {
   return (
     <div className="max-w-6xl mx-auto p-6">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Console Output</h2>
-        <p className="text-gray-600">Real-time console logs from Chatipelago client</p>
+        <h2 className="text-2xl font-bold mb-2">Console Output</h2>
+        <p className="text-base-content/70">Real-time console logs from Chatipelago client</p>
       </div>
 
       {/* Status and Controls */}
-      <div className="bg-white shadow rounded-lg p-4 mb-4">
+      <div className="card bg-base-100 shadow-sm p-4 mb-4">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
               <div className={`w-3 h-3 rounded-full ${
-                isConnected ? 'bg-green-500' : 'bg-red-500'
+                isConnected ? 'bg-success' : 'bg-error'
               }`}></div>
               <span className="text-sm font-medium">
                 {isConnected ? 'Connected' : 'Disconnected'}
               </span>
             </div>
             {error && (
-              <span className="text-sm text-red-600">Error: {error}</span>
+              <span className="text-sm text-error">Error: {error}</span>
             )}
-            <span className="text-sm text-gray-500">
+            <span className="text-sm text-base-content/60">
               {filteredMessages.length} message{filteredMessages.length !== 1 ? 's' : ''}
             </span>
           </div>
 
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
-              <label className="text-sm font-medium text-gray-700">Filter:</label>
+              <label className="text-sm font-medium">Filter:</label>
               <select
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
                 aria-label="Filter messages by level"
-                className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="select select-sm select-bordered"
               >
                 <option value="all">All</option>
                 <option value="log">Log</option>
@@ -103,29 +103,28 @@ export const ConsoleOutput = () => {
               </select>
             </div>
 
-
-            <div className="flex items-center space-x-2">
-              <label className="flex items-center text-sm">
+            <div className="form-control">
+              <label className="label cursor-pointer gap-2">
                 <input
                   type="checkbox"
                   checked={autoScroll}
                   onChange={(e) => setAutoScroll(e.target.checked)}
-                  className="mr-1"
+                  className="checkbox checkbox-sm"
                 />
-                Auto-scroll to latest
+                <span className="label-text text-sm">Auto-scroll</span>
               </label>
             </div>
 
             <div className="flex items-center space-x-2">
               <button
                 onClick={clearMessages}
-                className="px-3 py-1 bg-gray-500 text-white rounded-md text-sm hover:bg-gray-600"
+                className="btn btn-sm btn-neutral"
               >
                 Clear Console
               </button>
               <button
                 onClick={exportLogs}
-                className="px-3 py-1 bg-blue-500 text-white rounded-md text-sm hover:bg-blue-600"
+                className="btn btn-sm btn-primary"
               >
                 Export Logs
               </button>
@@ -135,28 +134,28 @@ export const ConsoleOutput = () => {
       </div>
 
       {/* Console Output */}
-      <div className="bg-terminal-bg text-green-400 rounded-lg shadow-lg overflow-hidden">
-        <div className="bg-gray-800 px-4 py-2 border-b border-gray-700">
+      <div className="bg-terminal-bg text-success rounded-lg shadow-lg overflow-hidden">
+        <div className="bg-base-300 px-4 py-2 border-b border-base-300">
           <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-            <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-            <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+            <div className="w-3 h-3 bg-error rounded-full"></div>
+            <div className="w-3 h-3 bg-warning rounded-full"></div>
+            <div className="w-3 h-3 bg-success rounded-full"></div>
             <span className="ml-4 text-sm font-mono">Chatipelago Console</span>
           </div>
         </div>
         
         <div
           ref={consoleRef}
-          className="h-96 overflow-y-auto p-4 font-mono text-sm"
+          className="h-96 overflow-y-auto p-4 font-mono text-sm terminal-scrollbar"
         >
           {filteredMessages.length === 0 ? (
-            <div className="text-gray-500 italic">
+            <div className="text-base-content/50 italic">
               {messages.length === 0 ? 'No messages to display' : 'No messages match the current filter'}
             </div>
           ) : (
             filteredMessages.map((message, index) => (
               <div key={index} className="mb-1 flex items-start space-x-2">
-                <span className="text-gray-500 text-xs flex-shrink-0">
+                <span className="text-base-content/50 text-xs flex-shrink-0">
                   {formatTimestamp(message.timestamp)}
                 </span>
                 <span className={`text-xs flex-shrink-0 ${getLevelColor(message.level)}`}>
