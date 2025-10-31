@@ -15,9 +15,9 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@mixitup_files': resolve(__dirname, 'src/mixitup_files'),
+      '@import_files': resolve(__dirname, 'src/import_files'),
     },
   },
-  // Expose mixitup_files for static serving in dev/build
-  publicDir: 'src/mixitup_files'
+  // Expose import_files for static serving in dev/build
+  publicDir: 'src/import_files'
 })
