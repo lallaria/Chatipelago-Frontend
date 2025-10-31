@@ -6,6 +6,11 @@ import ChatYaml from '../defaults/Chat.yaml?raw'
 // @ts-ignore - Vite handles ?url for binary files
 import apworldUrl from '../defaults/chatipelago.apworld?url'
 
+// APWorld builder service URL - proxied through Vite dev server (or same origin in production)
+// Vite proxy forwards /apworld/* to http://localhost:8123/apworld/*
+// Browser only needs to hit /apworld/* on the same origin as the frontend
+const APWORLD_SERVER_URL = '' // Empty string means same origin - Vite proxy handles it
+
 export const APworldGenerator = () => {
   const [file, setFile] = useState(null)
   const [yamlContent, setYamlContent] = useState(null)
@@ -142,9 +147,12 @@ export const APworldGenerator = () => {
       setGenerating(true)
       setError(null)
 
+      console.log('[APworldGenerator] Starting generation process...')
+      
       // Build the required YAML schema
       let payloadYaml = ''
       if (yamlContent) {
+        console.log('[APworldGenerator] Building YAML from yamlContent object')
         // Accept both nested and legacy flat shapes from uploaded file/manual
         const isNested = yamlContent.items && typeof yamlContent.items === 'object' && !Array.isArray(yamlContent.items)
         const nested = isNested
@@ -162,26 +170,59 @@ export const APworldGenerator = () => {
               },
             }
         payloadYaml = yaml.dump(nested, { sortKeys: false })
+        console.log(`[APworldGenerator] Generated YAML from object (${payloadYaml.length} bytes)`)
       } else if (file) {
+        console.log(`[APworldGenerator] Reading file: ${file.name} (${file.size} bytes)`)
         // Read the file content to string
         const text = await file.text()
         payloadYaml = text
+        console.log(`[APworldGenerator] Read file content (${payloadYaml.length} bytes)`)
       }
 
+      if (!payloadYaml || payloadYaml.trim().length === 0) {
+        throw new Error('YAML payload is empty')
+      }
+
+      const url = `${APWORLD_SERVER_URL}/apworld/build`
+      console.log(`[APworldGenerator] Sending POST request to ${url} with ${payloadYaml.length} bytes`)
+      
       // POST to local builder service
-      const resp = await fetch('http://localhost:8123/apworld/build', {
+      const resp = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-yaml' },
         body: payloadYaml,
+      }).catch(fetchErr => {
+        console.error('[APworldGenerator] Fetch error details:', {
+          message: fetchErr.message,
+          name: fetchErr.name,
+          stack: fetchErr.stack,
+          cause: fetchErr.cause
+        })
+        throw new Error(`Failed to connect to builder service: ${fetchErr.message}. Is the server running on port 8123?`)
       })
+
+      console.log(`[APworldGenerator] Received response: status=${resp.status}, statusText=${resp.statusText}`)
+      
       if (!resp.ok) {
-        const info = await resp.json().catch(() => ({}))
-        throw new Error(info.error || `Build failed with status ${resp.status}`)
+        let errorMessage = `Build failed with status ${resp.status}`
+        try {
+          const info = await resp.json()
+          console.error('[APworldGenerator] Error response:', info)
+          errorMessage = info.error || errorMessage
+        } catch (parseErr) {
+          const text = await resp.text().catch(() => '')
+          console.error(`[APworldGenerator] Failed to parse error response. Status: ${resp.status}, Body: ${text.substring(0, 200)}`)
+        }
+        throw new Error(errorMessage)
       }
 
-      // Point to local download endpoint
-      setDownloadUrl('http://localhost:8123/apworld/download')
+      const responseData = await resp.json().catch(() => ({}))
+      console.log('[APworldGenerator] Build completed successfully:', responseData)
+
+      // Point to download endpoint
+      setDownloadUrl(`${APWORLD_SERVER_URL}/apworld/download`)
     } catch (err) {
+      console.error('[APworldGenerator] Generation error:', err)
       setError(err.message)
     } finally {
       setGenerating(false)

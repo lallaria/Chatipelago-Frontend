@@ -1,7 +1,7 @@
 {
   "name": "chatipelago-frontend",
   "private": true,
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "Frontend for Chatipelago",
   "repository": {
     "type": "git",

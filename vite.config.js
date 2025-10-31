@@ -11,7 +11,13 @@ export default defineConfig({
   },
   server: {
     port: 3000,
-    host: true
+    host: true,
+    proxy: {
+      '/apworld': {
+        target: 'http://localhost:8123',
+        changeOrigin: false,
+      }
+    }
   },
   resolve: {
     alias: {
