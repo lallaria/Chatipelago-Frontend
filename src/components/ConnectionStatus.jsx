@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
 import { apiService } from '../services/api'
+import { useConfig } from '../hooks/useConfig'
 
 export const ConnectionStatus = () => {
+  const { config } = useConfig()
   const [status, setStatus] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -129,14 +131,16 @@ export const ConnectionStatus = () => {
             >
               {loading ? 'Checking...' : 'Reconnect'}
             </button>
-            <button
-              onClick={handleStreamerbotConnect}
-              disabled={loading}
-              className="btn btn-secondary btn-sm"
-              title="Connect to Streamer.bot WebSocket"
-            >
-              Connect Streamer.bot
-            </button>
+            {config?.streamerbot && (
+              <button
+                onClick={handleStreamerbotConnect}
+                disabled={loading}
+                className="btn btn-secondary btn-sm"
+                title="Connect to Streamer.bot WebSocket"
+              >
+                Connect Streamer.bot
+              </button>
+            )}
           </div>
         </div>
       </div>

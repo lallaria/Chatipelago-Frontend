@@ -119,6 +119,57 @@ export const MessageEditor = () => {
     }
   }
 
+  // Check if file is object-based (like etc.json) vs array-based (messages)
+  const isObjectFile = (content) => {
+    if (!content) return false
+    if (content.messages && Array.isArray(content.messages)) return false
+    return typeof content === 'object' && !Array.isArray(content)
+  }
+
+  // Object file handlers (for etc.json)
+  const addObjectKey = () => {
+    if (!fileContent) {
+      setFileContent({})
+    } else {
+      const newKey = `newKey${Object.keys(fileContent).length + 1}`
+      setFileContent({
+        ...fileContent,
+        [newKey]: ''
+      })
+    }
+    setHasChanges(true)
+  }
+
+  const removeObjectKey = (key) => {
+    if (fileContent) {
+      const newContent = { ...fileContent }
+      delete newContent[key]
+      setFileContent(newContent)
+      setHasChanges(true)
+    }
+  }
+
+  const updateObjectKey = (oldKey, newKey) => {
+    if (fileContent && oldKey !== newKey) {
+      const newContent = { ...fileContent }
+      const value = newContent[oldKey]
+      delete newContent[oldKey]
+      newContent[newKey] = value
+      setFileContent(newContent)
+      setHasChanges(true)
+    }
+  }
+
+  const updateObjectValue = (key, value) => {
+    if (fileContent) {
+      setFileContent({
+        ...fileContent,
+        [key]: value
+      })
+      setHasChanges(true)
+    }
+  }
+
   const filteredFiles = messageFiles.filter(file => 
     file.toLowerCase().includes(searchTerm.toLowerCase())
   )
@@ -219,72 +270,136 @@ export const MessageEditor = () => {
                 </div>
               )}
 
-              {/* Template Variables Reference */}
-              <div className="card bg-base-200 border border-base-300 p-4 mb-4">
-                <h4 className="font-semibold font-bold mb-2">Available Template Variables:</h4>
-                <div className="flex flex-wrap gap-2">
-                  {validVariables.map((variable) => (
-                    <code key={variable} className="bg-base-300 px-2 py-1 rounded text-sm">
-                      {variable}
-                    </code>
-                  ))}
-                </div>
-              </div>
-
-              {/* Messages Editor */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-semibold font-bold">Messages</h4>
-                  <button
-                    onClick={addMessage}
-                    className="btn btn-sm btn-success"
-                  >
-                    Add Message
-                  </button>
-                </div>
-
-                {fileContent.messages && fileContent.messages.map((message, index) => (
-                  <div key={index} className="flex items-start space-x-2">
-                    <div className="flex-1">
-                      <textarea
-                        value={message}
-                        onChange={(e) => updateMessage(index, e.target.value)}
-                        className="textarea textarea-bordered w-full font-mono text-sm"
-                        rows="2"
-                        placeholder="Enter message template..."
-                      />
-                    </div>
+              {/* Render different UI based on file type */}
+              {isObjectFile(fileContent) ? (
+                /* Object-based file editor (for etc.json) */
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-semibold font-bold">Key-Value Pairs</h4>
                     <button
-                      onClick={() => removeMessage(index)}
-                      className="btn btn-sm btn-error"
+                      onClick={addObjectKey}
+                      className="btn btn-sm btn-success"
                     >
-                      Remove
+                      Add Key
                     </button>
                   </div>
-                ))}
 
-                {(!fileContent.messages || fileContent.messages.length === 0) && (
-                  <div className="text-base-content/60 italic text-center py-4">
-                    No messages. Click "Add Message" to get started.
+                  {Object.keys(fileContent).map((key) => (
+                    <div key={key} className="flex items-start gap-2">
+                      <div className="flex-1 grid grid-cols-2 gap-2">
+                        <input
+                          type="text"
+                          value={key}
+                          onChange={(e) => updateObjectKey(key, e.target.value)}
+                          className="input input-bordered font-mono text-sm"
+                          placeholder="Key name"
+                        />
+                        <input
+                          type="text"
+                          value={fileContent[key]}
+                          onChange={(e) => updateObjectValue(key, e.target.value)}
+                          className="input input-bordered font-mono text-sm"
+                          placeholder="Value"
+                        />
+                      </div>
+                      <button
+                        onClick={() => removeObjectKey(key)}
+                        className="btn btn-sm btn-error"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+
+                  {(!fileContent || Object.keys(fileContent).length === 0) && (
+                    <div className="text-base-content/60 italic text-center py-4">
+                      No keys. Click "Add Key" to get started.
+                    </div>
+                  )}
+
+                  {/* Live Preview for object files */}
+                  {fileContent && Object.keys(fileContent).length > 0 && (
+                    <div className="mt-6">
+                      <h4 className="font-semibold font-bold mb-2">Live Preview</h4>
+                      <div className="card bg-base-200 border border-base-300 p-4">
+                        <pre className="font-mono text-sm whitespace-pre-wrap">
+                          {JSON.stringify(fileContent, null, 2)}
+                        </pre>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                /* Array-based file editor (for message templates) */
+                <>
+                  {/* Template Variables Reference */}
+                  <div className="card bg-base-200 border border-base-300 p-4 mb-4">
+                    <h4 className="font-semibold font-bold mb-2">Available Template Variables:</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {validVariables.map((variable) => (
+                        <code key={variable} className="bg-base-300 px-2 py-1 rounded text-sm">
+                          {variable}
+                        </code>
+                      ))}
+                    </div>
                   </div>
-                )}
-              </div>
 
-              {/* Live Preview */}
-              {fileContent.messages && fileContent.messages.length > 0 && (
-                <div className="mt-6">
-                  <h4 className="font-semibold font-bold mb-2">Live Preview</h4>
-                  <div className="card bg-base-200 border border-base-300 p-4">
-                    {fileContent.messages.map((message, index) => (
-                      <div key={index} className="mb-2 p-2 card bg-base-100 border border-base-300">
-                        <div className="text-sm text-base-content/70 mb-1">Message {index + 1}:</div>
-                        <div className="font-mono text-sm">
-                          {message || <span className="text-base-content/50 italic">Empty message</span>}
+                  {/* Messages Editor */}
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-semibold font-bold">Messages</h4>
+                      <button
+                        onClick={addMessage}
+                        className="btn btn-sm btn-success"
+                      >
+                        Add Message
+                      </button>
+                    </div>
+
+                    {fileContent.messages && fileContent.messages.map((message, index) => (
+                      <div key={index} className="flex items-start space-x-2">
+                        <div className="flex-1">
+                          <textarea
+                            value={message}
+                            onChange={(e) => updateMessage(index, e.target.value)}
+                            className="textarea textarea-bordered w-full font-mono text-sm"
+                            rows="2"
+                            placeholder="Enter message template..."
+                          />
                         </div>
+                        <button
+                          onClick={() => removeMessage(index)}
+                          className="btn btn-sm btn-error"
+                        >
+                          Remove
+                        </button>
                       </div>
                     ))}
+
+                    {(!fileContent.messages || fileContent.messages.length === 0) && (
+                      <div className="text-base-content/60 italic text-center py-4">
+                        No messages. Click "Add Message" to get started.
+                      </div>
+                    )}
                   </div>
-                </div>
+
+                  {/* Live Preview */}
+                  {fileContent.messages && fileContent.messages.length > 0 && (
+                    <div className="mt-6">
+                      <h4 className="font-semibold font-bold mb-2">Live Preview</h4>
+                      <div className="card bg-base-200 border border-base-300 p-4">
+                        {fileContent.messages.map((message, index) => (
+                          <div key={index} className="mb-2 p-2 card bg-base-100 border border-base-300">
+                            <div className="text-sm text-base-content/70 mb-1">Message {index + 1}:</div>
+                            <div className="font-mono text-sm">
+                              {message || <span className="text-base-content/50 italic">Empty message</span>}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           ) : (
