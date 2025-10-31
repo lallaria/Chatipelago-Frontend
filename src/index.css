@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 @plugin "daisyui" {
-  themes: dark, dracula, halloween --default, retro, light;
+  themes: halloween --default, retro;
 }
 
 /* Custom scrollbar for terminal */

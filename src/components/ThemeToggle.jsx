@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
 
-const THEMES = ['dark','dracula','halloween','retro','light']
+const THEMES = ['halloween','retro']
 
 export const ThemeToggle = () => {
-  const [theme, setTheme] = useState('dark')
+  const [theme, setTheme] = useState('halloween')
 
   useEffect(() => {
     const stored = localStorage.getItem('theme')
-    const initial = stored && THEMES.includes(stored) ? stored : 'dark'
+    const initial = stored && THEMES.includes(stored) ? stored : 'halloween'
     setTheme(initial)
     document.documentElement.setAttribute('data-theme', initial)
   }, [])
