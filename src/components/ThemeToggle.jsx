@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 const THEMES = ['light', 'dark', 'halloween','retro']
 
 export const ThemeToggle = () => {
-  const [theme, setTheme] = useState('dark')
+  const [theme, setTheme] = useState('halloween')
 
   useEffect(() => {
     const stored = localStorage.getItem('theme')

@@ -1,9 +1,19 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@source "../index.html";
+@source "../**/*.{js,jsx}";
 
 @plugin "daisyui" {
   themes: light --default, dark, halloween --prefersdark, retro;
+}
+
+@theme {
+  --color-terminal-bg: #1a1a1a;
+  --color-terminal-green: #00ff00;
+  --color-terminal-yellow: #ffff00;
+  --color-terminal-red: #ff0000;
+  
+  --font-family-mono: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 }
 
 /* Custom scrollbar for terminal */

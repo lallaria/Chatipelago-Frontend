@@ -1,7 +1,7 @@
 {
   "name": "chatipelago-frontend",
   "private": true,
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Frontend for Chatipelago",
   "repository": {
     "type": "git",
@@ -44,7 +44,7 @@
     "daisyui": "^5.3.10",
     "jsdom": "^23.0.0",
     "postcss": "^8.4.0",
-    "tailwindcss": "^3.4.0",
+    "tailwindcss": "^4.0.0",
     "vite": "^5.0.0",
     "vitest": "^1.0.0"
   }
