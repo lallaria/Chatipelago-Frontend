@@ -7,7 +7,7 @@ export const ThemeToggle = () => {
 
   useEffect(() => {
     const stored = localStorage.getItem('theme')
-    const initial = stored && THEMES.includes(stored) ? stored : 'dark'
+    const initial = stored && THEMES.includes(stored) ? stored : 'halloween'
     setTheme(initial)
     document.documentElement.setAttribute('data-theme', initial)
   }, [])
