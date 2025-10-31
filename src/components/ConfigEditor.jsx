@@ -27,7 +27,7 @@ export const ConfigEditor = () => {
     const fetchActionsText = async () => {
       try {
         setActionsTextError('')
-        const res = await fetch('/import_files/chatipelago_streamer_bot_actions')
+        const res = await fetch('/chatipelago_streamer_bot_actions')
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         const text = await res.text()
         setActionsText(text || '')
@@ -49,7 +49,7 @@ export const ConfigEditor = () => {
   useEffect(() => {
     if (!localConfig?.mixitup) return
     setMixitupReadmeErr('')
-    fetch('/import_files/README.md').then(async r => {
+    fetch('/README.md').then(async r => {
       if (!r.ok) throw new Error(`HTTP ${r.status}`)
       setMixitupReadme(await r.text())
     }).catch(() => setMixitupReadmeErr('Could not load MixItUp instructions'))
@@ -201,7 +201,7 @@ export const ConfigEditor = () => {
                         await navigator.clipboard.writeText(actionsText || '')
                       } catch {}
                     }}
-                    className="shrink-0 px-3 py-2 bg-gray-200 text-gray-800  hover:bg-gray-300"
+                    className="shrink-0 btn btn-outline"
                     disabled={!actionsText}
                   >
                     Copy
@@ -238,7 +238,7 @@ export const ConfigEditor = () => {
           <div className="card bg-base-100 shadow rounded-lg p-6">
             <h3 className="text-lg font-semibold font-bold mb-4">MixItUp Import Instructions & Files</h3>
             <a
-              href="/import_files/mixitup_files.zip"
+              href="/mixitup_files.zip"
               download
               className="block w-fit mb-6 btn btn-primary  text-white font-medium py-2 px-5 rounded transition"
             >
