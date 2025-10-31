@@ -60,3 +60,35 @@ src/
 
 ### Please open an issue or find delilahisdidi on Discord if you have problems.
 
+### Yaml schema:
+```yaml
+items:
+  normal:
+    - item0
+    - item
+    - ...
+    - item62
+  trap:
+    - item197
+    - item198
+    - item199
+  filler:
+    - item200
+    - item201
+    - item202
+  prog:
+    - item300
+    - item301
+    - item302
+ locations:
+   chatroom:
+    - loc0
+    - loc2
+    - loc3
+    - ...
+    - loc40
+  prog:
+    - loc50
+    - loc51
+    - loc59
+```

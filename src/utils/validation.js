@@ -106,24 +106,59 @@ export const validateConfig = (config) => {
 export const validateYamlSchema = (yamlData) => {
   const errors = []
 
-  if (!yamlData.items || !Array.isArray(yamlData.items) || yamlData.items.length !== 60) {
-    errors.push('items must contain exactly 60 items')
-  }
+  // Support both nested and flat (legacy) structures
+  const isNested = yamlData.items && typeof yamlData.items === 'object' && !Array.isArray(yamlData.items)
+  
+  if (isNested) {
+    // Validate nested structure
+    if (!yamlData.items || typeof yamlData.items !== 'object') {
+      errors.push('items must be an object with normal, trap, filler, and prog properties')
+    } else {
+      if (!Array.isArray(yamlData.items.normal)) {
+        errors.push('items.normal must be an array')
+      }
+      if (!Array.isArray(yamlData.items.trap)) {
+        errors.push('items.trap must be an array')
+      }
+      if (!Array.isArray(yamlData.items.filler)) {
+        errors.push('items.filler must be an array')
+      }
+      if (!Array.isArray(yamlData.items.prog)) {
+        errors.push('items.prog must be an array')
+      }
+    }
 
-  if (!yamlData.progitems || !Array.isArray(yamlData.progitems) || yamlData.progitems.length !== 3) {
-    errors.push('progitems must contain exactly 3 items')
-  }
+    if (!yamlData.locations || typeof yamlData.locations !== 'object') {
+      errors.push('locations must be an object with chatroom and prog properties')
+    } else {
+      if (!Array.isArray(yamlData.locations.chatroom)) {
+        errors.push('locations.chatroom must be an array')
+      }
+      if (!Array.isArray(yamlData.locations.prog)) {
+        errors.push('locations.prog must be an array')
+      }
+    }
+  } else {
+    // Validate flat (legacy) structure
+    if (!yamlData.items || !Array.isArray(yamlData.items) || yamlData.items.length !== 60) {
+      errors.push('items must contain exactly 60 items')
+    }
 
-  if (!yamlData.trapitems || !Array.isArray(yamlData.trapitems) || yamlData.trapitems.length !== 3) {
-    errors.push('trapitems must contain exactly 3 items')
-  }
+    if (!yamlData.progitems || !Array.isArray(yamlData.progitems) || yamlData.progitems.length !== 3) {
+      errors.push('progitems must contain exactly 3 items')
+    }
 
-  if (!yamlData.locations || !Array.isArray(yamlData.locations) || yamlData.locations.length !== 50) {
-    errors.push('locations must contain exactly 50 items')
-  }
+    if (!yamlData.trapitems || !Array.isArray(yamlData.trapitems) || yamlData.trapitems.length !== 3) {
+      errors.push('trapitems must contain exactly 3 items')
+    }
 
-  if (!yamlData.proglocations || !Array.isArray(yamlData.proglocations) || yamlData.proglocations.length !== 10) {
-    errors.push('proglocations must contain exactly 10 items')
+    if (!yamlData.locations || !Array.isArray(yamlData.locations) || yamlData.locations.length !== 50) {
+      errors.push('locations must contain exactly 50 items')
+    }
+
+    if (!yamlData.proglocations || !Array.isArray(yamlData.proglocations) || yamlData.proglocations.length !== 10) {
+      errors.push('proglocations must contain exactly 10 items')
+    }
   }
 
   return {

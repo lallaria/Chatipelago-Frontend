@@ -1,6 +1,10 @@
 import { useState, useRef, useEffect } from 'react'
 import { validateYamlSchema } from '../utils/validation'
 import * as yaml from 'js-yaml'
+import CustomChatiAPWorld from '../defaults/CustomChatiAPWorld.yml?raw'
+import ChatYaml from '../defaults/Chat.yaml?raw'
+// @ts-ignore - Vite handles ?url for binary files
+import apworldUrl from '../defaults/chatipelago.apworld?url'
 
 export const APworldGenerator = () => {
   const [file, setFile] = useState(null)
@@ -29,20 +33,26 @@ export const APworldGenerator = () => {
     // Only build from manual inputs when a file is not selected
     if (file) return
 
+    // Build nested structure to match schema
     const manual = {
-      items: parseLines(itemsText),
-      progitems: parseLines(progItemsText),
-      trapitems: parseLines(trapItemsText),
-      locations: parseLines(locationsText),
-      proglocations: parseLines(progLocationsText),
+      items: {
+        normal: parseLines(itemsText),
+        trap: parseLines(trapItemsText),
+        filler: [], // Manual input doesn't have filler yet
+        prog: parseLines(progItemsText),
+      },
+      locations: {
+        chatroom: parseLines(locationsText),
+        prog: parseLines(progLocationsText),
+      },
     }
 
     const allEmpty =
-      manual.items.length === 0 &&
-      manual.progitems.length === 0 &&
-      manual.trapitems.length === 0 &&
-      manual.locations.length === 0 &&
-      manual.proglocations.length === 0
+      manual.items.normal.length === 0 &&
+      manual.items.prog.length === 0 &&
+      manual.items.trap.length === 0 &&
+      manual.locations.chatroom.length === 0 &&
+      manual.locations.prog.length === 0
 
     if (allEmpty) {
       setYamlContent(null)
@@ -136,7 +146,8 @@ export const APworldGenerator = () => {
       let payloadYaml = ''
       if (yamlContent) {
         // Accept both nested and legacy flat shapes from uploaded file/manual
-        const nested = yamlContent.items && yamlContent.locations
+        const isNested = yamlContent.items && typeof yamlContent.items === 'object' && !Array.isArray(yamlContent.items)
+        const nested = isNested
           ? yamlContent
           : {
               items: {
@@ -196,6 +207,46 @@ export const APworldGenerator = () => {
     setProgLocationsText('')
   }
 
+  const downloadFile = (content, filename, mimeType = 'text/yaml') => {
+    const blob = new Blob([content], { type: mimeType })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = filename
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }
+
+  const handleDownloadCustomChatiAPWorld = () => {
+    downloadFile(CustomChatiAPWorld, 'CustomChatiAPWorld.yml', 'text/yaml')
+  }
+
+  const handleDownloadChatYaml = () => {
+    downloadFile(ChatYaml, 'Chat.yaml', 'text/yaml')
+  }
+
+  const handleDownloadApworld = () => {
+    // Use Vite's ?url import to get the file URL
+    fetch(apworldUrl)
+      .then(res => res.blob())
+      .then(blob => {
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = url
+        link.download = 'chatipelago.apworld'
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        URL.revokeObjectURL(url)
+      })
+      .catch(err => {
+        console.error('Failed to download apworld:', err)
+        setError(`Failed to download apworld file: ${err.message}`)
+      })
+  }
+
   const renderYamlPreview = () => {
     if (!yamlContent) return null
 
@@ -212,31 +263,41 @@ export const APworldGenerator = () => {
           <div className="bg-info/20 p-3 ">
             <div className="font-semibold text-info">Generic Items</div>
             <div className="text-info">
-              {yamlContent.items?.length || 0} / 60
+              {Array.isArray(yamlContent.items) 
+                ? yamlContent.items.length 
+                : yamlContent.items?.normal?.length || 0}
             </div>
           </div>
           <div className="bg-success/20 p-3 ">
             <div className="font-semibold text-green-900">Progression Items</div>
             <div className="text-success">
-              {yamlContent.progitems?.length || 0} / 3
+              {Array.isArray(yamlContent.items)
+                ? yamlContent.progitems?.length || 0
+                : yamlContent.items?.prog?.length || 0}
             </div>
           </div>
           <div className="bg-red-50 p-3 ">
             <div className="font-semibold text-red-900">Trap Items</div>
             <div className="text-red-700">
-              {yamlContent.trapitems?.length || 0} / 3
+              {Array.isArray(yamlContent.items)
+                ? yamlContent.trapitems?.length || 0
+                : yamlContent.items?.trap?.length || 0}
             </div>
           </div>
           <div className="bg-yellow-50 p-3 ">
             <div className="font-semibold text-yellow-900">Locations</div>
             <div className="text-yellow-700">
-              {yamlContent.locations?.length || 0} / 50
+              {Array.isArray(yamlContent.locations)
+                ? yamlContent.locations.length
+                : yamlContent.locations?.chatroom?.length || 0}
             </div>
           </div>
           <div className="bg-purple-50 p-3 ">
             <div className="font-semibold text-purple-900">Priority Locations</div>
             <div className="text-purple-700">
-              {yamlContent.proglocations?.length || 0} / 10
+              {Array.isArray(yamlContent.locations)
+                ? yamlContent.proglocations?.length || 0
+                : yamlContent.locations?.prog?.length || 0}
             </div>
           </div>
         </div>
@@ -249,6 +310,26 @@ export const APworldGenerator = () => {
       <div className="mb-6">
         <h2 className="text-2xl font-bold font-bold mb-2">APworld File Generator</h2>
         <p className="text-base-content/70">Upload a YAML file to generate an apworld for your game</p>
+      </div>
+
+      <div className="mb-6 card bg-base-200 border border-base-300">
+        <div className="card-body p-4">
+          <h3 className="text-sm font-semibold mb-2">Default Templates</h3>
+          <p className="text-xs text-base-content/70 mb-3">
+            Need a starting point? Download these templates:
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <button onClick={handleDownloadCustomChatiAPWorld} className="btn btn-xs btn-primary">
+              CustomChatiAPWorld.yml
+            </button>
+            <button onClick={handleDownloadChatYaml} className="btn btn-xs btn-primary">
+              Chat.yaml
+            </button>
+            <button onClick={handleDownloadApworld} className="btn btn-xs btn-primary">
+              chatipelago.apworld
+            </button>
+          </div>
+        </div>
       </div>
 
       {error && (
