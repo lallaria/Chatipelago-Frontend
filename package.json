@@ -1,7 +1,7 @@
 {
   "name": "chatipelago-frontend",
   "private": true,
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Frontend for Chatipelago",
   "repository": {
     "type": "git",
@@ -34,6 +34,7 @@
     "react-markdown": "^8.0.7"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.16",
     "@testing-library/jest-dom": "^6.0.0",
     "@testing-library/react": "^14.0.0",
     "@testing-library/user-event": "^14.0.0",
