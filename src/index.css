@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+@plugin "daisyui" {
+  themes: dark, dracula, halloween --default, retro, light;
+}
+
 /* Custom scrollbar for terminal */
 .terminal-scrollbar::-webkit-scrollbar {
   width: 8px;

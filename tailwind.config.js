@@ -19,15 +19,5 @@ export default {
       }
     },
   },
-  plugins: [daisyui],
-  daisyui: {
-    themes: [
-      "dark",
-      "dracula",
-      "halloween",
-      "retro",
-      "light"
-    ],
-    logs: false
-  }
+  plugins: [daisyui]
 }
