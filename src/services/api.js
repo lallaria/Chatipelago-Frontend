@@ -121,4 +121,14 @@ export const apiService = {
       throw new Error(`Failed to fetch status: ${error.message}`)
     }
   },
+
+  // Streamer.bot endpoints
+  async connectStreamerbot() {
+    try {
+      const response = await api.post('/api/streamerbot/connect')
+      return response.data
+    } catch (error) {
+      throw new Error(`Failed to connect to Streamer.bot: ${error.message}`)
+    }
+  },
 }

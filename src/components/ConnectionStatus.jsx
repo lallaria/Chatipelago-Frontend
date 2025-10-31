@@ -26,6 +26,22 @@ export const ConnectionStatus = () => {
     await checkStatus()
   }
 
+  const handleStreamerbotConnect = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      await apiService.connectStreamerbot()
+      // Refresh status after a short delay
+      setTimeout(() => {
+        checkStatus()
+      }, 1000)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   useEffect(() => {
     checkStatus()
     
@@ -105,13 +121,23 @@ export const ConnectionStatus = () => {
             </div>
           )}
           
-          <button
-            onClick={handleReconnect}
-            disabled={loading}
-            className="btn btn-primary btn-sm"
-          >
-            {loading ? 'Checking...' : 'Reconnect'}
-          </button>
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={handleReconnect}
+              disabled={loading}
+              className="btn btn-primary btn-sm"
+            >
+              {loading ? 'Checking...' : 'Reconnect'}
+            </button>
+            <button
+              onClick={handleStreamerbotConnect}
+              disabled={loading}
+              className="btn btn-secondary btn-sm"
+              title="Connect to Streamer.bot WebSocket"
+            >
+              Connect Streamer.bot
+            </button>
+          </div>
         </div>
       </div>
     </div>
