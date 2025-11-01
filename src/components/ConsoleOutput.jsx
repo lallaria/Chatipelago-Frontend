@@ -3,7 +3,7 @@ import { useSSE } from '../hooks/useSSE'
 
 export const ConsoleOutput = () => {
   const { isConnected, messages, error, clearMessages } = useSSE('http://localhost:8015/api/console')
-  const [filter, setFilter] = useState('all')
+  const [filter, setFilter] = useState('info')
   const [autoScroll, setAutoScroll] = useState(true)
   const consoleRef = useRef(null)
 
@@ -31,8 +31,12 @@ export const ConsoleOutput = () => {
         return 'text-warning'
       case 'info':
         return 'text-info'
-      default:
+      case 'log':
         return 'text-success'
+      case 'debug':
+        return 'text-base-content/60'
+      default:
+        return 'text-base-content'
     }
   }
 
@@ -96,6 +100,7 @@ export const ConsoleOutput = () => {
                 className="select select-sm select-bordered"
               >
                 <option value="all">All</option>
+                <option value="debug">Debug</option>
                 <option value="log">Log</option>
                 <option value="info">Info</option>
                 <option value="warn">Warning</option>

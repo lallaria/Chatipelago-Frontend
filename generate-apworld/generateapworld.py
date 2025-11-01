@@ -37,6 +37,60 @@ logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())  # Disable all logging output
 
 
+def decode_unicode_escapes(s: str) -> str:
+    """Decode literal unicode escape sequences like \\u00E9 (from YAML) to actual unicode characters."""
+    try:
+        # Check for literal backslash-u sequences that safe_load may preserve as strings
+        if "\\u" in s or "\\U" in s:
+            # Encode to latin-1 to preserve byte values, then decode as unicode_escape
+            decoded = s.encode('latin-1').decode('unicode_escape')
+            if decoded != s:
+                return decoded
+    except (UnicodeDecodeError, UnicodeEncodeError, ValueError):
+        pass
+    return s
+
+
+def repr_with_unicode_escapes(s: str) -> str:
+    """Convert string to Python repr, forcing unicode characters to use \\uXXXX escape sequences."""
+    # Fast path: if string is all ASCII, use repr() (Python's built-in is faster)
+    try:
+        s.encode('ascii')
+        # All ASCII - use built-in repr (much faster)
+        return repr(s)
+    except UnicodeEncodeError:
+        pass
+    
+    # Slow path: process character-by-character for Unicode
+    result = []
+    for char in s:
+        code = ord(char)
+        if code < 128:
+            # ASCII character - use standard escaping
+            if char == "'":
+                result.append("\\'")
+            elif char == "\\":
+                result.append("\\\\")
+            elif char == "\n":
+                result.append("\\n")
+            elif char == "\r":
+                result.append("\\r")
+            elif char == "\t":
+                result.append("\\t")
+            elif 32 <= code < 127:  # Printable ASCII
+                result.append(char)
+            else:
+                # Non-printable ASCII - use hex escape
+                result.append(f"\\x{code:02x}")
+        elif code <= 0xFFFF:
+            # Use \uXXXX for BMP characters
+            result.append(f"\\u{code:04x}")
+        else:
+            # Use \UXXXXXXXX for astral plane characters
+            result.append(f"\\U{code:08x}")
+    return "'" + "".join(result) + "'"
+
+
 def load_yaml(path: Path) -> tuple[Dict[str, List[str]], Dict[str, List[str]]]:
     logger.info(f"Loading YAML from {path}")
     if not path.exists():
@@ -56,12 +110,12 @@ def load_yaml(path: Path) -> tuple[Dict[str, List[str]], Dict[str, List[str]]]:
         logger.error("'locations' must be a mapping of category -> list in YAML")
         raise ValueError("'locations' must be a mapping of category -> list in YAML")
 
-    # Normalize lists to strings
+    # Normalize lists to strings and decode unicode escape sequences
     norm_items: Dict[str, List[str]] = {
-        str(k): [str(x) for x in v] for k, v in items.items()
+        decode_unicode_escapes(str(k)): [decode_unicode_escapes(str(x)) for x in v] for k, v in items.items()
     }
     norm_locations: Dict[str, List[str]] = {
-        str(k): [str(x) for x in v] for k, v in locations.items()
+        decode_unicode_escapes(str(k)): [decode_unicode_escapes(str(x)) for x in v] for k, v in locations.items()
     }
     logger.info(f"Loaded {len(norm_items)} item categories and {len(norm_locations)} location categories")
     return norm_items, norm_locations
@@ -80,7 +134,7 @@ def write_region_names(locations: Dict[str, List[str]]) -> None:
         var_name = "".join(ch if ch.isalnum() or ch == "_" else "_" for ch in str(category_name))
         if not var_name or var_name[0].isdigit():
             var_name = f"_{var_name}"
-        rendered_list = ", ".join(repr(x) for x in location_list)
+        rendered_list = ", ".join(repr_with_unicode_escapes(x) for x in location_list)
         lines.append(f"{var_name} = [{rendered_list}]")
         logger.debug(f"Added region category '{category_name}' ({len(location_list)} locations) as '{var_name}'")
 
@@ -106,19 +160,19 @@ def write_item_names(items: Dict[str, List[str]]) -> None:
 
     # Normal items numbered from 0 through 62
     for idx, name in enumerate(normal_list):
-        lines.append(f"ItemNum{idx} = {name!r}")
+        lines.append(f"ItemNum{idx} = {repr_with_unicode_escapes(name)}")
 
     # Trap items starting at 197
     for offset, name in enumerate(trap_list):
-        lines.append(f"ItemNum{197 + offset} = {name!r}")
+        lines.append(f"ItemNum{197 + offset} = {repr_with_unicode_escapes(name)}")
 
     # Filler items starting at 200
     for offset, name in enumerate(filler_list):
-        lines.append(f"ItemNum{200 + offset} = {name!r}")
+        lines.append(f"ItemNum{200 + offset} = {repr_with_unicode_escapes(name)}")
 
     # Progression items starting at 300
     for offset, name in enumerate(prog_list):
-        lines.append(f"ItemNum{300 + offset} = {name!r}")
+        lines.append(f"ItemNum{300 + offset} = {repr_with_unicode_escapes(name)}")
 
     item_file.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
     total_items = len(normal_list) + len(trap_list) + len(filler_list) + len(prog_list)

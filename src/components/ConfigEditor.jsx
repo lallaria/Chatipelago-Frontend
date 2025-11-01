@@ -14,6 +14,7 @@ export const ConfigEditor = () => {
   const [actionsTextError, setActionsTextError] = useState('')
   const [mixitupReadme, setMixitupReadme] = useState('')
   const [mixitupReadmeErr, setMixitupReadmeErr] = useState('')
+  const [mixitupInstructionsOpen, setMixitupInstructionsOpen] = useState(false)
 
   useEffect(() => {
     if (config) {
@@ -222,52 +223,43 @@ export const ConfigEditor = () => {
                 )}
               </div>
             )}
-            
-            {localConfig.mixitup && (
-              <div>
-                <label className="block text-sm font-medium text-base-content mb-1">
-                  Webhook URL
-                </label>
-                <input
-                  type="url"
-                  value={localConfig.webhookUrl || ''}
-                  onChange={(e) => handleInputChange('', 'webhookUrl', e.target.value)}
-                  className="w-full px-3 py-2 input input-bordered  "
-                  placeholder="https://mixitup.webhook/"
-                />
-                {validationErrors.webhookUrl && (
-                  <p className="text-error text-sm mt-1">{validationErrors.webhookUrl}</p>
-                )}
-              </div>
-            )}
           </div>
         </div>
 
         {/* MixItUp Import Instructions & Download */}
         {localConfig.mixitup && (
-          <div className="card bg-base-100 shadow rounded-lg p-6">
-            <h3 className="text-lg font-semibold font-bold mb-4">MixItUp Import Instructions & Files</h3>
-            <a
-              href="/mixitup_files.zip"
-              download
-              className="block w-fit mb-6 btn btn-primary  text-white font-medium py-2 px-5 rounded transition"
-            >
-              Download MixItUp Files (zip)
-            </a>
-            {mixitupReadmeErr ? (
-              <div className="text-error text-sm">{mixitupReadmeErr}</div>
-            ) : (
-              <div className="prose max-w-none">
-                <ReactMarkdown
-                  children={mixitupReadme}
-                  components={{
-                    img: ({node, ...props}) => (
-                      <img {...props} style={{maxWidth:'100%',border:'1px solid #ccc',borderRadius:'6px'}} />
-                    )
-                  }}
-                />
-              </div>
-            )}
+          <div className="collapse collapse-plus bg-base-200">
+            <input 
+              type="checkbox" 
+              checked={mixitupInstructionsOpen}
+              onChange={(e) => setMixitupInstructionsOpen(e.target.checked)}
+            />
+            <div className="collapse-title text-lg font-semibold">
+              MixItUp Import Instructions & Files
+            </div>
+            <div className="collapse-content">
+              <a
+                href="/mixitup_files.zip"
+                download
+                className="block w-fit mb-6 btn btn-primary  text-white font-medium py-2 px-5 rounded transition"
+              >
+                Download MixItUp Files (zip)
+              </a>
+              {mixitupReadmeErr ? (
+                <div className="text-error text-sm">{mixitupReadmeErr}</div>
+              ) : (
+                <div className="prose max-w-none">
+                  <ReactMarkdown
+                    children={mixitupReadme}
+                    components={{
+                      img: ({node, ...props}) => (
+                        <img {...props} style={{maxWidth:'100%',border:'1px solid #ccc',borderRadius:'6px'}} />
+                      )
+                    }}
+                  />
+                </div>
+              )}
+            </div>
           </div>
         )}
 
@@ -339,6 +331,48 @@ export const ConfigEditor = () => {
             </div>
           </div>
         </div>
+
+        {/* MixItUp Config */}
+        {localConfig.mixitup && (
+          <div className="card bg-base-100 shadow rounded-lg p-6">
+            <h3 className="text-lg font-semibold font-bold mb-4">MixItUp Config</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-base-content mb-1">
+                  Port *
+                </label>
+                <input
+                  type="number"
+                  value={localConfig.mixitupConfig?.port || ''}
+                  onChange={(e) => handleInputChange('mixitupConfig', 'port', parseInt(e.target.value))}
+                  className="w-full px-3 py-2 input input-bordered  "
+                  placeholder="8013"
+                  min="1"
+                  max="65535"
+                />
+                {validationErrors.mixitupConfig?.port && (
+                  <p className="text-error text-sm mt-1">{validationErrors.mixitupConfig.port}</p>
+                )}
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-base-content mb-1">
+                  Webhook URL *
+                </label>
+                <input
+                  type="url"
+                  value={localConfig.mixitupConfig?.webhookUrl || ''}
+                  onChange={(e) => handleInputChange('mixitupConfig', 'webhookUrl', e.target.value)}
+                  className="w-full px-3 py-2 input input-bordered  "
+                  placeholder="https://mixitup.webhook/"
+                />
+                {validationErrors.mixitupConfig?.webhookUrl && (
+                  <p className="text-error text-sm mt-1">{validationErrors.mixitupConfig.webhookUrl}</p>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Streamer.bot Config */}
             {localConfig.streamerbot && (

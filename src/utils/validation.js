@@ -88,12 +88,27 @@ export const validateConfig = (config) => {
     }
   }
 
-  // Validate webhook URL if mixitup is enabled
-  if (config.mixitup && config.webhookUrl) {
-    try {
-      new URL(config.webhookUrl)
-    } catch {
-      errors.webhookUrl = 'Invalid webhook URL format'
+  // Validate mixitup config
+  if (config.mixitup) {
+    if (config.mixitupConfig?.port) {
+      const port = parseInt(config.mixitupConfig.port)
+      if (isNaN(port) || port < 1 || port > 65535) {
+        errors.mixitupConfig = { 
+          ...errors.mixitupConfig, 
+          port: 'Port must be between 1 and 65535' 
+        }
+      }
+    }
+
+    if (config.mixitupConfig?.webhookUrl) {
+      try {
+        new URL(config.mixitupConfig.webhookUrl)
+      } catch {
+        errors.mixitupConfig = { 
+          ...errors.mixitupConfig, 
+          webhookUrl: 'Invalid webhook URL format' 
+        }
+      }
     }
   }
 
