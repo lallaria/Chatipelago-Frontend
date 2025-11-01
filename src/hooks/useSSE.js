@@ -25,6 +25,12 @@ export const useSSE = (url, options = {}) => {
   useEffect(() => {
     if (!url) return
 
+    // Clean up existing connection if any
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close()
+      eventSourceRef.current = null
+    }
+
     const eventSource = new EventSource(url)
     eventSourceRef.current = eventSource
 
@@ -48,19 +54,13 @@ export const useSSE = (url, options = {}) => {
     })
 
     return () => {
-      eventSource.close()
-      eventSourceRef.current = null
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close()
+        eventSourceRef.current = null
+      }
     }
   }, [url, addMessage])
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (eventSourceRef.current) {
-        eventSourceRef.current.close()
-      }
-    }
-  }, [])
 
   return {
     isConnected,

@@ -56,13 +56,23 @@ export const ConfigEditor = () => {
   }, [localConfig?.mixitup])
 
   const handleInputChange = (section, field, value) => {
-    setLocalConfig(prev => ({
-      ...prev,
-      [section]: {
-        ...prev[section],
-        [field]: value
+    setLocalConfig(prev => {
+      if (!section) {
+        // Handle top-level fields
+        return {
+          ...prev,
+          [field]: value
+        }
       }
-    }))
+      // Handle nested fields
+      return {
+        ...prev,
+        [section]: {
+          ...prev[section],
+          [field]: value
+        }
+      }
+    })
     setHasChanges(true)
     setSaveMessage('')
   }
