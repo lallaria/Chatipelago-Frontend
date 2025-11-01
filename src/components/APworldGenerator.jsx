@@ -155,7 +155,7 @@ export const APworldGenerator = () => {
       let payloadYaml = ''
       if (yamlContent) {
         console.log('[APworldGenerator] Building YAML from yamlContent object')
-        // Accept both nested and legacy flat shapes from uploaded file/manual
+        // Accept both nested and flat shapes from uploaded file/manual
         const isNested = yamlContent.items && typeof yamlContent.items === 'object' && !Array.isArray(yamlContent.items)
         const nested = isNested
           ? yamlContent

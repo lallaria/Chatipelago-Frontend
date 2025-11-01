@@ -121,7 +121,7 @@ export const validateConfig = (config) => {
 export const validateYamlSchema = (yamlData) => {
   const errors = []
 
-  // Support both nested and flat (legacy) structures
+  // Support both nested and flat structures
   const isNested = yamlData.items && typeof yamlData.items === 'object' && !Array.isArray(yamlData.items)
   
   if (isNested) {
@@ -154,7 +154,7 @@ export const validateYamlSchema = (yamlData) => {
       }
     }
   } else {
-    // Validate flat (legacy) structure
+    // Validate flat structure
     if (!yamlData.items || !Array.isArray(yamlData.items) || yamlData.items.length !== 60) {
       errors.push('items must contain exactly 60 items')
     }
@@ -165,6 +165,10 @@ export const validateYamlSchema = (yamlData) => {
 
     if (!yamlData.trapitems || !Array.isArray(yamlData.trapitems) || yamlData.trapitems.length !== 3) {
       errors.push('trapitems must contain exactly 3 items')
+    }
+
+    if (!yamlData.filleritems || !Array.isArray(yamlData.filleritems) || yamlData.filleritems.length !== 3) {
+      errors.push('filleritems must contain exactly 3 items')
     }
 
     if (!yamlData.locations || !Array.isArray(yamlData.locations) || yamlData.locations.length !== 50) {
