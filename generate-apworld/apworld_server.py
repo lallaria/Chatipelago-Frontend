@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any
 
@@ -21,6 +22,7 @@ from generateapworld import (
 
 class _Handler(BaseHTTPRequestHandler):
     server_version = "APWorldServer/1.4"
+    _build_lock = threading.Lock()
 
     def _send_json(self, status: int, payload: dict[str, Any]) -> None:
         body = json.dumps(payload).encode("utf-8")
@@ -39,110 +41,112 @@ class _Handler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_POST(self) -> None:  # type: ignore[override]
-        try:
-            if self.path.rstrip("/") != "/apworld/build":
-                self._send_json(404, {"error": "Not found"})
-                return
+        if self.path.rstrip("/") != "/apworld/build":
+            self._send_json(404, {"error": "Not found"})
+            return
 
-            content_length = int(self.headers.get("Content-Length", "0"))
-            if content_length == 0:
-                self._send_json(400, {"error": "Request body is empty"})
-                return
-            
-            raw = self.rfile.read(content_length)
-            ctype = (self.headers.get("Content-Type") or "").split(";")[0].strip()
+        # Serialize build requests - only one build at a time
+        with self._build_lock:
+            try:
+                content_length = int(self.headers.get("Content-Length", "0"))
+                if content_length == 0:
+                    self._send_json(400, {"error": "Request body is empty"})
+                    return
 
-            # Accept either raw YAML (preferred) or JSON {yaml: "..."} or {data: {...}}
-            if ctype == "application/json":
-                try:
-                    obj = json.loads(raw.decode("utf-8") or "{}")
-                    if isinstance(obj.get("yaml"), str):
-                        yaml_text = obj["yaml"]
-                    elif isinstance(obj.get("data"), dict):
-                        yaml_text = yaml.safe_dump(obj["data"], sort_keys=False, allow_unicode=True)
-                    else:
-                        self._send_json(400, {"error": "Expected 'yaml' string or 'data' object"})
+                raw = self.rfile.read(content_length)
+                ctype = (self.headers.get("Content-Type") or "").split(";")[0].strip()
+
+                # Accept either raw YAML (preferred) or JSON {yaml: "..."} or {data: {...}}
+                if ctype == "application/json":
+                    try:
+                        obj = json.loads(raw.decode("utf-8") or "{}")
+                        if isinstance(obj.get("yaml"), str):
+                            yaml_text = obj["yaml"]
+                        elif isinstance(obj.get("data"), dict):
+                            yaml_text = yaml.safe_dump(obj["data"], sort_keys=False, allow_unicode=True)
+                        else:
+                            self._send_json(400, {"error": "Expected 'yaml' string or 'data' object"})
+                            return
+                    except json.JSONDecodeError as e:
+                        self._send_json(400, {"error": f"Invalid JSON: {e}"})
                         return
-                except json.JSONDecodeError as e:
-                    self._send_json(400, {"error": f"Invalid JSON: {e}"})
+                else:
+                    try:
+                        yaml_text = raw.decode("utf-8")
+                    except UnicodeDecodeError as e:
+                        self._send_json(400, {"error": f"Invalid UTF-8 encoding: {e}"})
+                        return
+
+                if not yaml_text or not yaml_text.strip():
+                    self._send_json(400, {"error": "YAML content is empty"})
                     return
-            else:
+
+                # Validate/normalize YAML minimally and persist to expected path
                 try:
-                    yaml_text = raw.decode("utf-8")
-                except UnicodeDecodeError as e:
-                    self._send_json(400, {"error": f"Invalid UTF-8 encoding: {e}"})
+                    parsed = yaml.safe_load(yaml_text) or {}
+                    if not isinstance(parsed, dict):
+                        self._send_json(400, {"error": "YAML root must be a mapping/dict"})
+                        return
+                    if "items" not in parsed:
+                        self._send_json(400, {"error": "YAML must contain 'items' key"})
+                        return
+                    if "locations" not in parsed:
+                        self._send_json(400, {"error": "YAML must contain 'locations' key"})
+                        return
+                    normalized = yaml.safe_dump(parsed, sort_keys=False, allow_unicode=True)
+                except yaml.YAMLError as exc:
+                    self._send_json(400, {"error": f"Invalid YAML syntax: {exc}"})
+                    return
+                except Exception as exc:
+                    self._send_json(400, {"error": f"Invalid YAML: {exc}"})
                     return
 
-            if not yaml_text or not yaml_text.strip():
-                self._send_json(400, {"error": "YAML content is empty"})
-                return
-
-            # Validate/normalize YAML minimally and persist to expected path
-            try:
-                parsed = yaml.safe_load(yaml_text) or {}
-                if not isinstance(parsed, dict):
-                    self._send_json(400, {"error": "YAML root must be a mapping/dict"})
+                try:
+                    YAML_PATH.write_text(normalized, encoding="utf-8")
+                except Exception as e:
+                    self._send_json(500, {"error": f"Failed to write YAML file: {e}"})
                     return
-                if "items" not in parsed:
-                    self._send_json(400, {"error": "YAML must contain 'items' key"})
+
+                # Generate files and run build
+                items = parsed.get("items") or {}
+                locations = parsed.get("locations") or {}
+                if not isinstance(items, dict):
+                    self._send_json(400, {"error": "'items' must be a mapping"})
                     return
-                if "locations" not in parsed:
-                    self._send_json(400, {"error": "YAML must contain 'locations' key"})
+                if not isinstance(locations, dict):
+                    self._send_json(400, {"error": "'locations' must be a mapping"})
                     return
-                normalized = yaml.safe_dump(parsed, sort_keys=False, allow_unicode=True)
-            except yaml.YAMLError as exc:
-                self._send_json(400, {"error": f"Invalid YAML syntax: {exc}"})
-                return
-            except Exception as exc:
-                self._send_json(400, {"error": f"Invalid YAML: {exc}"})
-                return
 
-            try:
-                YAML_PATH.write_text(normalized, encoding="utf-8")
-            except Exception as e:
-                self._send_json(500, {"error": f"Failed to write YAML file: {e}"})
-                return
-
-            # Generate files and run build
-            items = parsed.get("items") or {}
-            locations = parsed.get("locations") or {}
-            if not isinstance(items, dict):
-                self._send_json(400, {"error": "'items' must be a mapping"})
-                return
-            if not isinstance(locations, dict):
-                self._send_json(400, {"error": "'locations' must be a mapping"})
-                return
-
-            try:
-                write_region_names(locations)
-            except Exception as e:
-                self._send_json(500, {"error": f"Failed to write region names: {e}"})
-                return
-
-            try:
-                write_item_names(items)
-            except Exception as e:
-                self._send_json(500, {"error": f"Failed to write item names: {e}"})
-                return
-
-            try:
-                code = run_build_apworld()
-                if code != 0:
-                    self._send_json(500, {"error": "Build failed", "code": code})
+                try:
+                    write_region_names(locations)
+                except Exception as e:
+                    self._send_json(500, {"error": f"Failed to write region names: {e}"})
                     return
-            except Exception as e:
-                self._send_json(500, {"error": f"Build subprocess error: {e}"})
-                return
 
-            try:
-                move_output()
-            except Exception as e:
-                self._send_json(500, {"error": f"Failed to move output file: {e}"})
-                return
+                try:
+                    write_item_names(items)
+                except Exception as e:
+                    self._send_json(500, {"error": f"Failed to write item names: {e}"})
+                    return
 
-            self._send_json(200, {"ok": True, "artifact": str(DEST_OUTPUT)})
-        except Exception as exc:  # pragma: no cover
-            self._send_json(500, {"error": str(exc)})
+                try:
+                    code = run_build_apworld()
+                    if code != 0:
+                        self._send_json(500, {"error": "Build failed", "code": code})
+                        return
+                except Exception as e:
+                    self._send_json(500, {"error": f"Build subprocess error: {e}"})
+                    return
+
+                try:
+                    move_output()
+                except Exception as e:
+                    self._send_json(500, {"error": f"Failed to move output file: {e}"})
+                    return
+
+                self._send_json(200, {"ok": True, "artifact": str(DEST_OUTPUT)})
+            except Exception as exc:  # pragma: no cover
+                self._send_json(500, {"error": str(exc)})
 
     def do_GET(self) -> None:  # type: ignore[override]
         try:
