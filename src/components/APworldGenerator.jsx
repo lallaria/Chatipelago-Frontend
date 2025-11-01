@@ -25,6 +25,7 @@ export const APworldGenerator = () => {
   const [itemsText, setItemsText] = useState('')
   const [progItemsText, setProgItemsText] = useState('')
   const [trapItemsText, setTrapItemsText] = useState('')
+  const [fillerItemsText, setFillerItemsText] = useState('')
   const [locationsText, setLocationsText] = useState('')
   const [progLocationsText, setProgLocationsText] = useState('')
 
@@ -43,7 +44,7 @@ export const APworldGenerator = () => {
       items: {
         normal: parseLines(itemsText),
         trap: parseLines(trapItemsText),
-        filler: [], // Manual input doesn't have filler yet
+        filler: parseLines(fillerItemsText),
         prog: parseLines(progItemsText),
       },
       locations: {
@@ -56,6 +57,7 @@ export const APworldGenerator = () => {
       manual.items.normal.length === 0 &&
       manual.items.prog.length === 0 &&
       manual.items.trap.length === 0 &&
+      manual.items.filler.length === 0 &&
       manual.locations.chatroom.length === 0 &&
       manual.locations.prog.length === 0
 
@@ -74,7 +76,7 @@ export const APworldGenerator = () => {
   useEffect(() => {
     rebuildManualYamlIfApplicable()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [itemsText, progItemsText, trapItemsText, locationsText, progLocationsText, file])
+  }, [itemsText, progItemsText, trapItemsText, fillerItemsText, locationsText, progLocationsText, file])
 
   const handleFileSelect = (selectedFile) => {
     if (!selectedFile) return
@@ -169,7 +171,13 @@ export const APworldGenerator = () => {
                 prog: yamlContent.proglocations || [],
               },
             }
-        payloadYaml = yaml.dump(nested, { sortKeys: false })
+        payloadYaml = yaml.dump(nested, { 
+          sortKeys: false,  
+          noRefs: true
+        })
+        // Fix any double-escaped Unicode sequences that js-yaml might produce
+        // Replace \\u with \u when it appears to be a Unicode escape sequence
+        payloadYaml = payloadYaml.replace(/\\\\(u[0-9a-fA-F]{4})/g, '\\$1')
         console.log(`[APworldGenerator] Generated YAML from object (${payloadYaml.length} bytes)`)
       } else if (file) {
         console.log(`[APworldGenerator] Reading file: ${file.name} (${file.size} bytes)`)
@@ -244,6 +252,7 @@ export const APworldGenerator = () => {
     setItemsText('')
     setProgItemsText('')
     setTrapItemsText('')
+    setFillerItemsText('')
     setLocationsText('')
     setProgLocationsText('')
   }
@@ -296,11 +305,11 @@ export const APworldGenerator = () => {
         <h4 className="font-semibold font-bold">APWorld Content Preview:</h4>
         <div className="card bg-base-200 border border-base-300 p-4 max-h-64 overflow-y-auto">
           <pre className="text-sm font-mono">
-            {JSON.stringify(yamlContent, null, 2)}
+            {yaml.dump(yamlContent, { sortKeys: false, lineWidth: -1, noRefs: true })}
           </pre>
         </div>
         
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-4 text-sm">
           <div className="bg-info/20 p-3 ">
             <div className="font-semibold text-info">Generic Items</div>
             <div className="text-info">
@@ -323,6 +332,14 @@ export const APworldGenerator = () => {
               {Array.isArray(yamlContent.items)
                 ? yamlContent.trapitems?.length || 0
                 : yamlContent.items?.trap?.length || 0}
+            </div>
+          </div>
+          <div className="bg-blue-50 p-3 ">
+            <div className="font-semibold text-blue-900">Filler Items</div>
+            <div className="text-blue-700">
+              {Array.isArray(yamlContent.items)
+                ? yamlContent.filleritems?.length || 0
+                : yamlContent.items?.filler?.length || 0}
             </div>
           </div>
           <div className="bg-yellow-50 p-3 ">
@@ -601,6 +618,21 @@ export const APworldGenerator = () => {
                 disabled={!!file}
               />
               <div className="text-xs text-base-content/60 mt-1">{parseLines(trapItemsText).length} / 3</div>
+            </div>
+
+            <div>
+              <label className="label font-semibold">Filler Items (3)</label>
+              <textarea
+                className="textarea textarea-bordered w-full h-32"
+                placeholder="One per line"
+                value={fillerItemsText}
+                onChange={(e) => {
+                  setFillerItemsText(e.target.value)
+                  rebuildManualYamlIfApplicable()
+                }}
+                disabled={!!file}
+              />
+              <div className="text-xs text-base-content/60 mt-1">{parseLines(fillerItemsText).length} / 3</div>
             </div>
 
             <div>

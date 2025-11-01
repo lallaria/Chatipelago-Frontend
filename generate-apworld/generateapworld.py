@@ -4,7 +4,7 @@ Utility to:
 2) Write:
    - worlds/chatipelago/names/RegionName.py with variables mapping to lists
    - worlds/chatipelago/names/ItemName.py with ItemNum constants
-3) Run build subprocess and move output to /tmp
+3) Build Chatipelago APWorld and move output to /tmp
 """
 
 from __future__ import annotations
@@ -12,7 +12,6 @@ from __future__ import annotations
 import os
 import sys
 import shutil
-import subprocess
 import logging
 from pathlib import Path
 from typing import Dict, List, Any
@@ -24,22 +23,18 @@ except Exception as exc:  # pragma: no cover
         "PyYAML is required. Install with: pip install pyyaml"
     ) from exc
 
+# This will not resolve without being placed into the Archipelago build folder
+from worlds.LauncherComponents import _build_apworlds # type: ignore
 
-ROOT = Path(__file__).resolve().parent.parent  # repo root assumption: src/ is one level below
+ROOT = Path(__file__).resolve().parent
 YAML_PATH = Path("/tmp/chati.yaml")
 NAMES_DIR = ROOT / "worlds" / "chatipelago" / "names"
-LAUNCHER_CMD = ["venv/bin/python", "Launcher.py", '"Build APWorlds"', "--", '"Chatipelago"']
-BUILD_OUTPUT = ROOT / "builds" / "apworlds" / "chatipelago.apworld"
+BUILD_OUTPUT = ROOT / "build" / "apworlds" / "chatipelago.apworld"
 DEST_OUTPUT = Path("/tmp") / "chatipelago.apworld"
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-    filename="generate.log",
-    filemode="a"
-)
+# File logging disabled - logger calls will use default handler (stderr) if needed
 logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())  # Disable all logging output
 
 
 def load_yaml(path: Path) -> tuple[Dict[str, List[str]], Dict[str, List[str]]]:
@@ -130,16 +125,15 @@ def write_item_names(items: Dict[str, List[str]]) -> None:
     logger.info(f"Wrote {total_items} item definitions to {item_file}")
 
 
-def run_build_subprocess() -> int:
-    # Execute from repo root to match expected paths
-    logger.info(f"Running build subprocess: {' '.join(LAUNCHER_CMD)}")
-    logger.debug(f"Working directory: {ROOT}")
-    proc = subprocess.run(LAUNCHER_CMD, cwd=ROOT)
-    if proc.returncode == 0:
-        logger.info("Build subprocess completed successfully")
-    else:
-        logger.warning(f"Build subprocess exited with code {proc.returncode}")
-    return proc.returncode
+def run_build_apworld() -> int:
+    logger.info("Building APWorld for Chatipelago")
+    try:
+        _build_apworlds('Chatipelago')
+        logger.info("Build completed successfully")
+        return 0
+    except Exception as e:
+        logger.error(f"Build failed: {e}")
+        return 1
 
 
 def move_output() -> None:
@@ -163,7 +157,7 @@ def main() -> int:
         write_region_names(locations)
         write_item_names(items)
 
-        code = run_build_subprocess()
+        code = run_build_apworld()
         if code != 0:
             logger.error(f"Build process failed with exit code {code}")
             return code
