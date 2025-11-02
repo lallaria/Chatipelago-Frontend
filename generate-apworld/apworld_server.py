@@ -16,6 +16,7 @@ from generateapworld import (
     write_item_names,
     run_build_apworld,
     move_output,
+    cleanup_files,
     DEST_OUTPUT,
 )
 
@@ -144,13 +145,23 @@ class _Handler(BaseHTTPRequestHandler):
                     self._send_json(500, {"error": f"Failed to move output file: {e}"})
                     return
 
+                # Clean up uploaded YAML and generated files after successful build
+                cleanup_files()
+
                 self._send_json(200, {"ok": True, "artifact": str(DEST_OUTPUT)})
             except Exception as exc:  # pragma: no cover
                 self._send_json(500, {"error": str(exc)})
 
     def do_GET(self) -> None:  # type: ignore[override]
         try:
-            if self.path.rstrip("/") != "/apworld/download":
+            path = self.path.rstrip("/")
+            
+            # Health check endpoint
+            if path == "/apworld/health" or path == "/health":
+                self._send_json(200, {"status": "ok", "service": "apworld-server"})
+                return
+            
+            if path != "/apworld/download":
                 self._send_json(404, {"error": "Not found"})
                 return
 

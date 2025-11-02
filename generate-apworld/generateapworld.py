@@ -204,6 +204,22 @@ def move_output() -> None:
     logger.info(f"Successfully moved output to {DEST_OUTPUT}")
 
 
+def cleanup_files() -> None:
+    """Delete uploaded YAML and generated name files after successful build."""
+    files_to_delete = [
+        YAML_PATH,
+        NAMES_DIR / "RegionName.py",
+        NAMES_DIR / "ItemName.py",
+    ]
+    for file_path in files_to_delete:
+        if file_path.exists():
+            try:
+                file_path.unlink()
+                logger.info(f"Deleted {file_path}")
+            except Exception as e:
+                logger.warning(f"Failed to delete {file_path}: {e}")
+
+
 def main() -> int:
     logger.info("Starting APWorld generation process")
     try:
@@ -217,6 +233,7 @@ def main() -> int:
             return code
 
         move_output()
+        cleanup_files()
         logger.info(f"APWorld generation completed successfully. Output: {DEST_OUTPUT}")
         return 0
     except Exception as e:

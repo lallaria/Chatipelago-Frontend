@@ -161,7 +161,7 @@ export const HomeLanding = ({ onNavigate }) => {
         </div>
 
         <div className="mt-6 text-sm text-base-content/70">
-          <p>Admin API expected at <span className="font-mono">http://localhost:8015</span>. Ensure your Chatipelago client is running.</p>
+          <p>Ensure your Chatipelago client is running.</p>
         </div>
       </div>
     </div>
