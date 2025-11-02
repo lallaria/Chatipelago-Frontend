@@ -650,7 +650,7 @@ export const APworldGenerator = () => {
               <div className="text-xs text-base-content/60 mt-1">{parseLines(locationsText).length} / 50</div>
             </div>
 
-            <div className="md:col-span-2">
+            <div>
               <label className="label font-semibold">Progression Locations (10)</label>
               <textarea
                 className="textarea textarea-bordered w-full h-32"
