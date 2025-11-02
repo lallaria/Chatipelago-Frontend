@@ -7,7 +7,6 @@ export const ConnectionStatus = () => {
   const [status, setStatus] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [lastChecked, setLastChecked] = useState(null)
 
   const checkStatus = async () => {
     try {
@@ -15,7 +14,6 @@ export const ConnectionStatus = () => {
       setError(null)
       const statusData = await apiService.getStatus()
       setStatus(statusData)
-      setLastChecked(new Date())
     } catch (err) {
       setError(err.message)
       setStatus(null)
@@ -29,7 +27,6 @@ export const ConnectionStatus = () => {
       setLoading(true)
       setError(null)
       await apiService.connectArchipelago()
-      // Refresh status after a short delay
       setTimeout(() => {
         checkStatus()
       }, 1000)
@@ -45,7 +42,6 @@ export const ConnectionStatus = () => {
       setLoading(true)
       setError(null)
       await apiService.connectStreamerbot()
-      // Refresh status after a short delay
       setTimeout(() => {
         checkStatus()
       }, 1000)
@@ -58,25 +54,9 @@ export const ConnectionStatus = () => {
 
   useEffect(() => {
     checkStatus()
-    
-    // Check status every 30 seconds
     const interval = setInterval(checkStatus, 30000)
-    
     return () => clearInterval(interval)
   }, [])
-
-  const getStatusColor = () => {
-    if (loading) return 'text-warning'
-    if (error || !status) return 'text-error'
-    if (status?.status === 'connected') return 'text-success'
-    return 'text-base-content/50'
-  }
-
-  const getStatusText = () => {
-    if (loading) return 'Checking...'
-    if (error || !status) return 'Disconnected'
-    return status.status === 'connected' ? 'Connected' : 'Unknown'
-  }
 
   const formatUptime = (seconds) => {
     if (!seconds) return 'N/A'
@@ -94,79 +74,87 @@ export const ConnectionStatus = () => {
     }
   }
 
-  const formatLastChecked = () => {
-    if (!lastChecked) return 'Never'
-    return lastChecked.toLocaleTimeString()
+  const StatusBlock = ({ title, connected, uptime, url, onConnect, connectLabel, tooltipExtra }) => {
+    const statusColor = loading 
+      ? 'bg-warning animate-pulse'
+      : connected 
+      ? 'bg-success' 
+      : 'bg-error'
+    
+    const statusText = loading 
+      ? 'Checking...'
+      : connected 
+      ? 'Connected' 
+      : 'Disconnected'
+    
+    const tooltipText = [
+      `Uptime: ${formatUptime(uptime)}`,
+      url && `URL: ${url}`,
+      tooltipExtra
+    ].filter(Boolean).join('\n')
+
+    return (
+      <div className="card bg-base-100 shadow-sm p-3 flex-1">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <div className={`w-3 h-3 rounded-full ${statusColor}`}></div>
+            <span className={`font-medium ${connected ? 'text-success' : 'text-error'}`}>
+              {title}: {statusText}
+            </span>
+          </div>
+          {!connected && !loading && onConnect && (
+            <button
+              onClick={onConnect}
+              disabled={loading}
+              className="btn btn-primary btn-xs"
+            >
+              {connectLabel || 'Connect'}
+            </button>
+          )}
+        </div>
+        <div 
+          className="text-xs text-base-content/60 mt-1 tooltip tooltip-top" 
+          data-tip={tooltipText}
+        >
+          Uptime: {formatUptime(uptime)}
+          {url && <span className="ml-2">URL: {url}</span>}
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div className="card bg-base-100 shadow-sm p-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <div className={`w-3 h-3 rounded-full ${
-            loading ? 'bg-warning animate-pulse' :
-            error || !status ? 'bg-error' :
-            status?.status === 'connected' ? 'bg-success' : 'bg-base-300'
-          }`}></div>
-          <div>
-            <div className="flex items-center space-x-2">
-              <span className={`font-medium ${getStatusColor()}`}>
-                {getStatusText()}
-              </span>
-              {status?.version && (
-                <span className="text-xs text-base-content/60">
-                  v{status.version}
-                </span>
-              )}
-            </div>
-            {error && (
-              <div className="text-xs text-error mt-1">
-                {error}
-              </div>
-            )}
-          </div>
+    <div className="flex items-center gap-2">
+      {error && (
+        <div className="text-xs text-error">
+          {error}
         </div>
-
-        <div className="flex items-center space-x-4">
-          {status && (
-            <div className="text-sm text-base-content/70">
-              <div>Uptime: {formatUptime(status.uptime)}</div>
-              <div>Last checked: {formatLastChecked()}</div>
-            </div>
-          )}
-          
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={handleArchipelagoConnect}
-              disabled={loading || !!status?.archipelago?.connected}
-              className={`btn btn-sm ${
-                status?.archipelago?.connected ? 'btn-success' : 'btn-primary'
-              }`}
-              title={
-                status?.archipelago?.connected
-                  ? `Connected to ${status.archipelago.connected}`
-                  : 'Connect to Archipelago server'
-              }
-            >
-              {loading
-                ? 'Connecting...'
-                : status?.archipelago?.connected
-                ? 'Connected to Archipelago'
-                : 'Connect to Archipelago'}
-            </button>
-            {config?.streamerbot && (
-              <button
-                onClick={handleStreamerbotConnect}
-                disabled={loading}
-                className="btn btn-secondary btn-sm"
-                title="Connect to Streamer.bot WebSocket"
-              >
-                Connect Streamer.bot
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
+      )}
+      
+      <StatusBlock
+        title="API"
+        connected={status?.api?.connected}
+        uptime={status?.api?.uptime}
+        tooltipExtra={status?.version && `Version: ${status.version}`}
+      />
+      
+      <StatusBlock
+        title={status?.chatbot?.type === 'streamerbot' ? 'Streamer.bot' : status?.chatbot?.type === 'mixitup' ? 'MixItUp' : 'ChatBot'}
+        connected={status?.chatbot?.connected}
+        uptime={status?.chatbot?.uptime}
+        tooltipExtra={status?.chatbot?.type === 'mixitup' && status?.chatbot?.port ? `Port: ${status.chatbot.port}` : null}
+        onConnect={status?.chatbot?.type === 'streamerbot' && !status?.chatbot?.connected ? handleStreamerbotConnect : null}
+        connectLabel="Connect"
+      />
+      
+      <StatusBlock
+        title="Archipelago"
+        connected={status?.archipelago?.connected}
+        uptime={status?.archipelago?.uptime}
+        url={status?.archipelago?.url}
+        onConnect={!status?.archipelago?.connected ? handleArchipelagoConnect : null}
+        connectLabel="Connect"
+      />
     </div>
   )
 }

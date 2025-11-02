@@ -41,10 +41,7 @@ export const App = () => {
               </div>
             </div>
             
-            <div className="flex items-center gap-2">
-              <ThemeToggle />
-              <ConnectionStatus />
-            </div>
+            <ConnectionStatus />
           </div>
         </div>
       </header>
@@ -73,22 +70,73 @@ export const App = () => {
 
       {/* Footer */}
       <footer className="bg-base-100 border-t border-base-300 mt-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="text-sm opacity-70">
-              Chatipelago Frontend v{appVersion}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <div className="text-sm opacity-70">
+                Chatipelago Frontend v{appVersion}
+              </div>
+              <div className="flex items-center gap-4">
+                <ThemeToggle />
+                <a
+                  href={githubUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 text-sm opacity-70 hover:opacity-100"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                    <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.428 2.865 8.184 6.839 9.504.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.605-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.464-1.11-1.464-.907-.62.069-.607.069-.607 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.833.091-.647.35-1.088.636-1.338-2.221-.253-4.555-1.113-4.555-4.952 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.748-1.026 2.748-1.026.546 1.378.202 2.397.1 2.65.64.7 1.028 1.595 1.028 2.688 0 3.848-2.337 4.696-4.565 4.944.359.31.679.921.679 1.856 0 1.339-.012 2.419-.012 2.749 0 .267.18.578.688.48A10.019 10.019 0 0 0 22 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
+                  </svg>
+                  GitHub
+                </a>
+              </div>
             </div>
-            <a
-              href={githubUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-2 text-sm opacity-70 hover:opacity-100"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-                <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.428 2.865 8.184 6.839 9.504.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.605-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.464-1.11-1.464-.907-.62.069-.607.069-.607 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.833.091-.647.35-1.088.636-1.338-2.221-.253-4.555-1.113-4.555-4.952 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.748-1.026 2.748-1.026.546 1.378.202 2.397.1 2.65.64.7 1.028 1.595 1.028 2.688 0 3.848-2.337 4.696-4.565 4.944.359.31.679.921.679 1.856 0 1.339-.012 2.419-.012 2.749 0 .267.18.578.688.48A10.019 10.019 0 0 0 22 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
-              </svg>
-              GitHub
-            </a>
+            
+            {/* GDPR Information */}
+            <div className="border-t border-base-300 pt-4">
+              <div className="text-xs opacity-70 space-y-2">
+                <p className="font-semibold">Privacy & Data Processing (GDPR)</p>
+                <p>
+                  This application processes data in compliance with GDPR (General Data Protection Regulation). 
+                  When you upload YAML configuration files, the following applies:
+                </p>
+                <ul className="list-disc list-inside ml-4 space-y-1">
+                  <li>
+                    <strong>Data Collection:</strong> Uploaded YAML files are temporarily stored in server memory 
+                    and processed to generate Archipelago world files (.apworld format).
+                  </li>
+                  <li>
+                    <strong>Data Storage:</strong> Files are stored temporarily on the server. Generated files 
+                    are provided for download and automatically cleaned up after processing.
+                  </li>
+                  <li>
+                    <strong>Data Purpose:</strong> Your uploaded configuration files are used solely for the 
+                    purpose of generating game world configurations. No personal data is extracted or stored 
+                    beyond what is necessary for this functionality.
+                  </li>
+                  <li>
+                    <strong>Data Retention:</strong> Uploaded files and generated outputs are automatically deleted 
+                    from the server after processing or after a timeout period. No persistent storage of your 
+                    configuration data occurs.
+                  </li>
+                  <li>
+                    <strong>Your Rights:</strong> Under GDPR, you have the right to access, rectify, erase, 
+                    restrict processing, and object to processing of your data. Since files are automatically 
+                    cleaned up, deletion occurs automatically. For any data protection inquiries, please contact 
+                    the application administrator.
+                  </li>
+                  <li>
+                    <strong>Data Processing Location:</strong> Data processing occurs on the server infrastructure 
+                    you connect to. For EU users, ensure your server provider maintains appropriate data protection 
+                    measures if processing occurs outside the EU.
+                  </li>
+                </ul>
+                <p className="mt-2">
+                  By using this application and uploading files, you consent to this data processing. 
+                  No cookies or tracking technologies are used beyond standard server logs for operational purposes.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </footer>
