@@ -205,7 +205,7 @@ export const validateMessageTemplate = (template) => {
 
   // Validate template variables in messages
   if (template.messages && Array.isArray(template.messages)) {
-    const validVariables = ['{item}', '{player}', '{location}', '{count}', '{time}']
+    const validVariables = ['{item}', '{player}', '{location}', '{receiver}']
     
     template.messages.forEach((message, index) => {
       if (typeof message !== 'string') {

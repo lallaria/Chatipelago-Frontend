@@ -13,7 +13,7 @@ export const MessageEditor = () => {
   const [hasChanges, setHasChanges] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
 
-  const validVariables = ['{item}', '{player}', '{location}', '{count}', '{time}']
+  const validVariables = ['{item}', '{player}', '{location}', '{receiver}']
 
   useEffect(() => {
     loadMessageFiles()
