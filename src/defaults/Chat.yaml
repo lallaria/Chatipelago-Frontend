@@ -1,13 +1,6 @@
 name: Chat
+description: Chati by Dranzior, DelilahIsDidi and LMarioza
 game: Chatipelago
-description: MUAH
 Chatipelago:
   progression_balancing: '0'
   accessibility: full
-  local_items: []
-  non_local_items: []
-  start_hints: []
-  start_location_hints: []
-  exclude_locations: []
-  priority_locations: []
-  start_inventory: {}

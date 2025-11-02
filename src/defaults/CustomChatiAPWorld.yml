@@ -1,29 +1,131 @@
 items:
   normal:
-    - item0
-    - item
-    - ...
-    - item62
+    - A bag of chips from the store that won't scan and you're in self checkout so now you have to ask an employee for help and people are waiting in line behind you.
+    - Handheld emulator packed with retro games
+    - Lightsaber-shaped USB stick
+    - your favorite hoodie
+    - miniature replica of game console
+    - coffee mug with a pixel heart that "fills" when hot
+    - 3D-printed miniature dragon
+    - An Army of Pacepals
+    - jar of mana crystals
+    - plushie of a game character
+    - magnetic orb lamp
+    - Abandoned Sphere 1 Check
+    - functioning mini arcade cabinet
+    - keyboard keycap shaped like a treasure chest
+    - T-shirt with a pixelated heart
+    - coin bank shaped like a treasure chest
+    - poster featuring a retro arcade game
+    - board game based on a video game
+    - laser-engraved wooden puzzle box
+    - notebook that looks like an old spellbook
+    - Game Over doormat
+    - A Shoe-box Full of Forgotten Pokemon Cards
+    - cosplay prop weapon with glowing effects
+    - squishy stress ball shaped like a D20
+    - keychain shaped like a pixelated sword
+    - floppy disk with mysterious "data" on it
+    - pin shaped like a game cartridge
+    - set of pixel-art fridge magnets
+    - VR headset stand shaped like a sci-fi character
+    - laser pointer shaped like a wizard staff
+    - model spaceship you can assemble yourself
+    - A Subscription to the Stream for Six Dollars or for Free with Twitch Prime
+    - pair of gaming socks
+    - hand-knitted scarf resembling a pixelated game world
+    - game character's helmet as a wearable replica
+    - fortune cookie that gives "quests"
+    - surprised Pikachu plush
+    - USB charger
+    - water bottle
+    - collection of stickers that mimic in-game achievements
+    - gold-painted brick with "coin" engravings
+    - Level 50 Hype Train
+    - handmade crochet game console cover
+    - circuit board-inspired wallet
+    - safety pin
+    - knock-off game controller
+    - 3D printed cloud for your desk
+    - Gamer's Cookbook
+    - small framed art piece that you got at GDQ
+    - LED triangles for your wall
+    - glass potion bottle with glowing liquid
+    - fake in-game currency coin pouch
+    - jigsawpuzzle of a classic game
+    - working Wi-Fi router
+    - working microphone
+    - card deck with video game characters
+    - backpack with laptop compartment
+    - Rubik's cube
+    - pronoun pin
+    - Fire Rod
+    - Enchanted Ring
+    - 8-Bit Alarm Clock
+    - Box of yarn you'll get to later
   trap:
-    - item197
-    - item198
-    - item199
+    - The Top of the Hour Ad Break
+    - Mute Button, Pressed 5 Minutes Earlier
+    - Cat on Your Lap and You Have To Pee
   filler:
-    - item200
-    - item201
-    - item202
+    - If You Can Read This Drink Water
+    - Set of Broken Joycons
+    - Timesave For the Next Run
   prog:
-    - item300
-    - item301
-    - item302
- locations:
-   chatroom:
-    - loc0
-    - loc2
-    - loc3
-    - ...
-    - loc40
+    - Authentic Paper Burger King Crown
+    - Sounds Gay We're In GayPride
+    - Trans is Beautiful Poster TransgenderPride
+locations:
+  chatroom:
+    - The Hidden Flame Tavern
+    - Fading Ember Forge
+    - Underground Gallery 56
+    - The Broken Star Pub
+    - The Cloak Room
+    - Shake Your Tailfeathers Hall
+    - Cloudchaser Inn
+    - Sunspire Aviary
+    - Whispering Winds Market
+    - Beast Beat Club
+    - Critter Carnival
+    - Pride Paws Park
+    - Fursona Studios
+    - Flufftail Forest
+    - Howl & Roar Arcade
+    - Whiskers & Claws Spa
+    - The Bear's Den
+    - Tail Wagger's Lounge
+    - The Furred Haven Café
+    - Radiant Cinema
+    - Aurora Dance Studio
+    - Unity Gym
+    - Sapphire Shores Beach Club
+    - The Ally Alley
+    - The Velvet Underground
+    - Equality Park
+    - Celestial Glow Spa
+    - Colors Café & Bakery
+    - The Quirk Collective
+    - Spectrum Arcade
+    - Pride Plaza
+    - Queertopia
+    - Phoenix Fire Tattoo Parlor
+    - Crimson Dawn Bridge
+    - Emberwood Refuge
+    - Veiled Vein Tunnel
+    - Windswept Hilltop
+    - The Golden Paw Lodge
+    - Feathers & Fins Falls
+    - Wild Whiskers Motel
+    - Moonlit Meadows
   prog:
-    - loc50
-    - loc51
-    - loc59
+    - SGDQ Main Stage
+    - Tier 3 Subscriber Lounge
+    - The Elite 4
+    - Kitten's Chair
+    - Hyrule Castle
+    - Bowser's Hot Tub
+    - Mushroom Kingdom
+    - Impact Crater
+    - The End of the World
+    - Delilah's Basement
