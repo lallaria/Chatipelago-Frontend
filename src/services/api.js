@@ -131,4 +131,14 @@ export const apiService = {
       throw new Error(`Failed to connect to Streamer.bot: ${error.message}`)
     }
   },
+
+  // Archipelago endpoints
+  async connectArchipelago() {
+    try {
+      const response = await api.post('/api/archipelago/connect')
+      return response.data
+    } catch (error) {
+      throw new Error(`Failed to connect to Archipelago: ${error.message}`)
+    }
+  },
 }

@@ -24,8 +24,20 @@ export const ConnectionStatus = () => {
     }
   }
 
-  const handleReconnect = async () => {
-    await checkStatus()
+  const handleArchipelagoConnect = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      await apiService.connectArchipelago()
+      // Refresh status after a short delay
+      setTimeout(() => {
+        checkStatus()
+      }, 1000)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleStreamerbotConnect = async () => {
@@ -125,11 +137,22 @@ export const ConnectionStatus = () => {
           
           <div className="flex items-center space-x-2">
             <button
-              onClick={handleReconnect}
-              disabled={loading}
-              className="btn btn-primary btn-sm"
+              onClick={handleArchipelagoConnect}
+              disabled={loading || !!status?.archipelago?.connected}
+              className={`btn btn-sm ${
+                status?.archipelago?.connected ? 'btn-success' : 'btn-primary'
+              }`}
+              title={
+                status?.archipelago?.connected
+                  ? `Connected to ${status.archipelago.connected}`
+                  : 'Connect to Archipelago server'
+              }
             >
-              {loading ? 'Checking...' : 'Reconnect'}
+              {loading
+                ? 'Connecting...'
+                : status?.archipelago?.connected
+                ? 'Connected to Archipelago'
+                : 'Connect to Archipelago'}
             </button>
             {config?.streamerbot && (
               <button

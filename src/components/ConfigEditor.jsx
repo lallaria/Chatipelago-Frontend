@@ -113,6 +113,26 @@ export const ConfigEditor = () => {
     }
   }
 
+  const handleSaveConnectionInfo = async () => {
+    if (!localConfig) return
+
+    const validation = validateConfig(localConfig)
+    setValidationErrors(validation.errors)
+
+    if (!validation.isValid) {
+      setSaveMessage('Please fix validation errors before saving')
+      return
+    }
+
+    try {
+      await saveConfig(localConfig)
+      setSaveMessage('Connection info saved successfully')
+      setHasChanges(false)
+    } catch (err) {
+      setSaveMessage(`Failed to save: ${err.message}`)
+    }
+  }
+
   const handleCancel = () => {
     if (config) {
       setLocalConfig({ ...config })
@@ -166,6 +186,84 @@ export const ConfigEditor = () => {
       )}
 
       <div className="space-y-6">
+        {/* Archipelago Connection Info */}
+        <div className="card bg-base-100 shadow rounded-lg p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold font-bold">Archipelago Connection Info</h3>
+            <button
+              onClick={handleSaveConnectionInfo}
+              disabled={saving || !hasChanges}
+              className="btn btn-primary btn-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {saving ? 'Saving...' : 'Save'}
+            </button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-base-content mb-1">
+                Hostname *
+              </label>
+              <input
+                type="text"
+                value={localConfig.connectionInfo?.hostname || ''}
+                onChange={(e) => handleInputChange('connectionInfo', 'hostname', e.target.value)}
+                className="w-full px-3 py-2 input input-bordered  "
+                placeholder="archipelago.gg"
+              />
+              {validationErrors.connectionInfo?.hostname && (
+                <p className="text-error text-sm mt-1">{validationErrors.connectionInfo.hostname}</p>
+              )}
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-base-content mb-1">
+                Port *
+              </label>
+              <input
+                type="number"
+                value={localConfig.connectionInfo?.port || ''}
+                onChange={(e) => handleInputChange('connectionInfo', 'port', parseInt(e.target.value))}
+                className="w-full px-3 py-2 input input-bordered  "
+                placeholder="38281"
+                min="1"
+                max="65535"
+              />
+              {validationErrors.connectionInfo?.port && (
+                <p className="text-error text-sm mt-1">{validationErrors.connectionInfo.port}</p>
+              )}
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-base-content mb-1">
+                Player Name *
+              </label>
+              <input
+                type="text"
+                value={localConfig.connectionInfo?.playerName || ''}
+                onChange={(e) => handleInputChange('connectionInfo', 'playerName', e.target.value)}
+                className="w-full px-3 py-2 input input-bordered  "
+                placeholder="Chat"
+              />
+              {validationErrors.connectionInfo?.playerName && (
+                <p className="text-error text-sm mt-1">{validationErrors.connectionInfo.playerName}</p>
+              )}
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-base-content mb-1">
+                Tags (comma-separated)
+              </label>
+              <input
+                type="text"
+                value={localConfig.connectionInfo?.tags?.join(', ') || ''}
+                onChange={(e) => handleArrayChange('connectionInfo', 'tags', e.target.value)}
+                className="w-full px-3 py-2 input input-bordered  "
+                placeholder="AP, DeathLink"
+              />
+            </div>
+          </div>
+        </div>
+
         {/* Integration Settings */}
         <div className="card bg-base-100 shadow rounded-lg p-6">
           <h3 className="text-lg font-semibold font-bold mb-4">Integration Settings</h3>
@@ -262,75 +360,6 @@ export const ConfigEditor = () => {
             </div>
           </div>
         )}
-
-        {/* Connection Info */}
-        <div className="card bg-base-100 shadow rounded-lg p-6">
-          <h3 className="text-lg font-semibold font-bold mb-4">Connection Info</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-base-content mb-1">
-                Hostname *
-              </label>
-              <input
-                type="text"
-                value={localConfig.connectionInfo?.hostname || ''}
-                onChange={(e) => handleInputChange('connectionInfo', 'hostname', e.target.value)}
-                className="w-full px-3 py-2 input input-bordered  "
-                placeholder="archipelago.gg"
-              />
-              {validationErrors.connectionInfo?.hostname && (
-                <p className="text-error text-sm mt-1">{validationErrors.connectionInfo.hostname}</p>
-              )}
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-base-content mb-1">
-                Port *
-              </label>
-              <input
-                type="number"
-                value={localConfig.connectionInfo?.port || ''}
-                onChange={(e) => handleInputChange('connectionInfo', 'port', parseInt(e.target.value))}
-                className="w-full px-3 py-2 input input-bordered  "
-                placeholder="38281"
-                min="1"
-                max="65535"
-              />
-              {validationErrors.connectionInfo?.port && (
-                <p className="text-error text-sm mt-1">{validationErrors.connectionInfo.port}</p>
-              )}
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-base-content mb-1">
-                Player Name *
-              </label>
-              <input
-                type="text"
-                value={localConfig.connectionInfo?.playerName || ''}
-                onChange={(e) => handleInputChange('connectionInfo', 'playerName', e.target.value)}
-                className="w-full px-3 py-2 input input-bordered  "
-                placeholder="Chat"
-              />
-              {validationErrors.connectionInfo?.playerName && (
-                <p className="text-error text-sm mt-1">{validationErrors.connectionInfo.playerName}</p>
-              )}
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-base-content mb-1">
-                Tags (comma-separated)
-              </label>
-              <input
-                type="text"
-                value={localConfig.connectionInfo?.tags?.join(', ') || ''}
-                onChange={(e) => handleArrayChange('connectionInfo', 'tags', e.target.value)}
-                className="w-full px-3 py-2 input input-bordered  "
-                placeholder="AP, DeathLink"
-              />
-            </div>
-          </div>
-        </div>
 
         {/* MixItUp Config */}
         {localConfig.mixitup && (
