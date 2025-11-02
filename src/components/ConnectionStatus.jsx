@@ -74,7 +74,7 @@ export const ConnectionStatus = () => {
     }
   }
 
-  const StatusBlock = ({ title, connected, uptime, url, onConnect, connectLabel, tooltipExtra }) => {
+  const StatusBlock = ({ title, connected, uptime, url, onConnect, connectLabel, tooltipExtra, version, wider }) => {
     const statusColor = loading 
       ? 'bg-warning animate-pulse'
       : connected 
@@ -94,30 +94,38 @@ export const ConnectionStatus = () => {
     ].filter(Boolean).join('\n')
 
     return (
-      <div className="card bg-base-100 shadow-sm p-3 flex-1">
+      <div className={`card bg-base-100 shadow-sm p-3 ${wider ? 'flex-[1.5] min-w-[280px]' : 'flex-1'}`}>
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <div className={`w-3 h-3 rounded-full ${statusColor}`}></div>
-            <span className={`font-medium ${connected ? 'text-success' : 'text-error'}`}>
+          <div className="flex items-center space-x-2 flex-1 min-w-0">
+            <div className={`w-3 h-3 rounded-full ${statusColor} flex-shrink-0`}></div>
+            <span className={`font-medium ${connected ? 'text-success' : 'text-error'} whitespace-nowrap`}>
               {title}: {statusText}
+              {version && <span className="text-xs opacity-70 ml-1">v{version}</span>}
             </span>
           </div>
           {!connected && !loading && onConnect && (
             <button
               onClick={onConnect}
               disabled={loading}
-              className="btn btn-primary btn-xs"
+              className="btn btn-primary btn-xs flex-shrink-0 ml-2"
             >
               {connectLabel || 'Connect'}
             </button>
           )}
         </div>
         <div 
-          className="text-xs text-base-content/60 mt-1 tooltip tooltip-top" 
+          className="text-xs text-base-content/60 mt-1 tooltip tooltip-top whitespace-pre-line max-w-full" 
           data-tip={tooltipText}
         >
-          Uptime: {formatUptime(uptime)}
-          {url && <span className="ml-2">URL: {url}</span>}
+          <div className="flex items-start gap-2">
+            <span className="whitespace-nowrap">Uptime: {formatUptime(uptime)}</span>
+            {url && (
+              <span className="truncate min-w-0">
+                <span className="whitespace-nowrap">URL: </span>
+                <span className="break-all">{url}</span>
+              </span>
+            )}
+          </div>
         </div>
       </div>
     )
@@ -135,6 +143,7 @@ export const ConnectionStatus = () => {
         title="API"
         connected={status?.api?.connected}
         uptime={status?.api?.uptime}
+        version={status?.version}
         tooltipExtra={status?.version && `Version: ${status.version}`}
       />
       
@@ -154,6 +163,7 @@ export const ConnectionStatus = () => {
         url={status?.archipelago?.url}
         onConnect={!status?.archipelago?.connected ? handleArchipelagoConnect : null}
         connectLabel="Connect"
+        wider={true}
       />
     </div>
   )
