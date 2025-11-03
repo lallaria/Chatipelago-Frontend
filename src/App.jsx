@@ -18,6 +18,7 @@ const tabs = [
 
 export const App = () => {
   const [activeTab, setActiveTab] = useState('home')
+  const [gdprOpen, setGdprOpen] = useState(false)
 
   const ActiveComponent = tabs.find(tab => tab.id === activeTab)?.component
   const appVersion = packageJson?.version || 'dev'
@@ -94,47 +95,59 @@ export const App = () => {
             
             {/* GDPR Information */}
             <div className="border-t border-base-300 pt-4">
-              <div className="text-xs opacity-70 space-y-2">
-                <p className="font-semibold">Privacy & Data Processing (GDPR)</p>
-                <p>
-                  This application processes data in compliance with GDPR (General Data Protection Regulation). 
-                  When you upload YAML configuration files, the following applies:
-                </p>
-                <ul className="list-disc list-inside ml-4 space-y-1">
-                  <li>
-                    <strong>Data Collection:</strong> Uploaded YAML files are temporarily stored in server memory 
-                    and processed to generate Archipelago world files (.apworld format).
-                  </li>
-                  <li>
-                    <strong>Data Storage:</strong> Files are stored temporarily on the server. Generated files 
-                    are provided for download and automatically cleaned up after processing.
-                  </li>
-                  <li>
-                    <strong>Data Purpose:</strong> Your uploaded configuration files are used solely for the 
-                    purpose of generating game world configurations. No personal data is extracted or stored 
-                    beyond what is necessary for this functionality.
-                  </li>
-                  <li>
-                    <strong>Data Retention:</strong> Uploaded files and generated outputs are automatically deleted 
-                    from the server after processing or after a timeout period. No persistent storage of your 
-                    configuration data occurs.
-                  </li>
-                  <li>
-                    <strong>Your Rights:</strong> Under GDPR, you have the right to access, rectify, erase, 
-                    restrict processing, and object to processing of your data. Since files are automatically 
-                    cleaned up, deletion occurs automatically. For any data protection inquiries, please contact 
-                    the application administrator.
-                  </li>
-                  <li>
-                    <strong>Data Processing Location:</strong> Data processing occurs on the server infrastructure 
-                    you connect to. For EU users, ensure your server provider maintains appropriate data protection 
-                    measures if processing occurs outside the EU.
-                  </li>
-                </ul>
-                <p className="mt-2">
-                  By using this application and uploading files, you consent to this data processing. 
-                  No cookies or tracking technologies are used beyond standard server logs for operational purposes.
-                </p>
+              <div className="collapse collapse-arrow bg-base-200">
+                <input 
+                  type="checkbox" 
+                  checked={gdprOpen}
+                  onChange={(e) => setGdprOpen(e.target.checked)}
+                />
+                <div className="collapse-title text-sm font-semibold">
+                  Privacy & Data Processing (GDPR)
+                </div>
+                <div className="collapse-content">
+                  <div className="text-xs opacity-70 space-y-2">
+                    <p>
+                      This application processes data in compliance with GDPR (General Data Protection Regulation). 
+                      When you upload YAML files for world generation or JSON configuration files, the following applies:
+                    </p>
+                    <ul className="list-disc list-inside ml-4 space-y-1">
+                      <li>
+                        <strong>Data Collection:</strong> Uploaded YAML files are temporarily stored on the server 
+                        and processed to generate Archipelago world files (.apworld format) via a fork of
+                        ArchipelagoMW/Archipelago. Yaml and Item/Location data is deleted immediately after processing.
+                        JSON configuration files are stored only in browser memory and never sent to the server.
+                      </li>
+                      <li>
+                        <strong>Data Storage:</strong> Generated chatipelago.apworld files are stored temporarily on the 
+                        server. These are overwritten on each generation, and cleared out daily via a cron job. 
+                      </li>
+                      <li>
+                        <strong>Data Purpose:</strong> Your files are used solely for the purpose of generating custom
+                        chatipelago game worlds and client flavor text. No personal data is extracted or stored 
+                        beyond what is necessary for this functionality.
+                      </li>
+                      <li>
+                        <strong>Data Retention:</strong> Uploaded files and generated outputs are automatically deleted 
+                        from the server after processing or after 24 hours. No persistent storage of your 
+                        configuration data occurs.
+                      </li>
+                      <li>
+                        <strong>Your Rights:</strong> Under GDPR, you have the right to access, rectify, erase, 
+                        restrict processing, and object to processing of your data. Since files are automatically 
+                        cleaned up, deletion occurs automatically. For any data protection inquiries, please contact 
+                        Delilah via github.
+                      </li>
+                      <li>
+                        <strong>Data Processing Location:</strong> Data processing occurs on a cloud server hosted by Hetzner,
+                        a German company. The server is located in Ashburn, Virginia, USA.
+                      </li>
+                    </ul>
+                    <p className="mt-2">
+                      By using this application and uploading files, you consent to this data processing. 
+                      No cookies or tracking technologies are used beyond standard server logs for operational purposes.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
