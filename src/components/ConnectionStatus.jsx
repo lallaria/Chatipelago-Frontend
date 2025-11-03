@@ -151,7 +151,7 @@ export const ConnectionStatus = () => {
         title={status?.chatbot?.type === 'streamerbot' ? 'Streamer.bot' : status?.chatbot?.type === 'mixitup' ? 'MixItUp' : 'ChatBot'}
         connected={status?.chatbot?.connected}
         uptime={status?.chatbot?.uptime}
-        tooltipExtra={status?.chatbot?.type === 'mixitup' && status?.chatbot?.port ? `Port: ${status.chatbot.port}` : null}
+        tooltipExtra={status?.chatbot?.type === 'mixitup' && status?.chatbot?.port ? `Port: ${status.chatbot.port}` : status?.chatbot?.type === 'streamerbot' && status?.chatbot?.version ? `Version: ${status.chatbot.version}` : null}
         onConnect={status?.chatbot?.type === 'streamerbot' && !status?.chatbot?.connected ? handleStreamerbotConnect : null}
         connectLabel="Connect"
       />
