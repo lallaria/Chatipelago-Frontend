@@ -248,6 +248,19 @@ export const ConfigEditor = () => {
                 <p className="text-error text-sm mt-1">{validationErrors.connectionInfo.playerName}</p>
               )}
             </div>
+
+              <div>
+                <label className="block text-sm font-medium text-base-content mb-1">
+                  Archipelago Password (optional)
+                </label>
+              <input
+                type="password"
+                value={localConfig.connectionInfo?.password || ''}
+                onChange={(e) => handleInputChange('connectionInfo', 'password', e.target.value)}
+                className="w-full px-3 py-2 input input-bordered  "
+                placeholder=""
+              />
+            </div>
             
             <div>
               <label className="block text-sm font-medium text-base-content mb-1">
@@ -433,7 +446,7 @@ export const ConfigEditor = () => {
                       value={localConfig.streamerbotConfig?.port || ''}
                       onChange={(e) => handleInputChange('streamerbotConfig', 'port', parseInt(e.target.value))}
                       className="w-full px-3 py-2 input input-bordered  "
-                      placeholder="8014"
+                      placeholder="8080"
                       min="1"
                       max="65535"
                     />
@@ -451,20 +464,20 @@ export const ConfigEditor = () => {
                   value={localConfig.streamerbotConfig?.endpoint || ''}
                   onChange={(e) => handleInputChange('streamerbotConfig', 'endpoint', e.target.value)}
                   className="w-full px-3 py-2 input input-bordered  "
-                  placeholder="/chati"
+                  placeholder=""
                 />
               </div>
               
               <div>
                 <label className="block text-sm font-medium text-base-content mb-1">
-                  Password *
+                  Streamer.bot Password (optional)
                 </label>
                 <input
                   type="password"
                   value={localConfig.streamerbotConfig?.password || ''}
                   onChange={(e) => handleInputChange('streamerbotConfig', 'password', e.target.value)}
                   className="w-full px-3 py-2 input input-bordered  "
-                  placeholder="delilahsbasement"
+                  placeholder=""
                 />
                 {validationErrors.streamerbotConfig?.password && (
                   <p className="text-error text-sm mt-1">{validationErrors.streamerbotConfig.password}</p>

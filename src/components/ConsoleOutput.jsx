@@ -11,10 +11,17 @@ export const ConsoleOutput = () => {
     let filtered = messages
 
     // Filter by level
-    if (filter !== 'all') {
-      filtered = filtered.filter(msg => msg.level === filter)
+    if (filter === 'log') {
+      filtered = filtered.filter(msg => msg.level === 'log' || msg.level === 'info' || msg.level === 'warn' || msg.level === 'error')
+    } else if (filter === 'info') {
+      filtered = filtered.filter(msg => msg.level === 'info' || msg.level === 'warn' || msg.level === 'error')
+    } else if (filter === 'warn') {
+      filtered = filtered.filter(msg => msg.level === 'warn' || msg.level === 'error')
+    } else if (filter === 'error') {
+      return filtered.filter(msg => msg.level === 'error')
     }
 
+    // debug returns everything
     return filtered
   }, [messages, filter])
 
@@ -99,7 +106,6 @@ export const ConsoleOutput = () => {
                 aria-label="Filter messages by level"
                 className="select select-sm select-bordered"
               >
-                <option value="all">All</option>
                 <option value="debug">Debug</option>
                 <option value="log">Log</option>
                 <option value="info">Info</option>

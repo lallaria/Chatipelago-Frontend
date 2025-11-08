@@ -36,6 +36,7 @@ const mockConfig = {
     hostname: 'archipelago.gg',
     port: 38281,
     playerName: 'Chat',
+    password: '',
     tags: ['AP', 'DeathLink']
   },
   webhookUrl: 'https://mixitup.webhook/',
@@ -65,6 +66,8 @@ describe('ConfigEditor', () => {
     mockUseConfig.loading = false
     mockUseConfig.error = null
     mockUseConfig.saving = false
+    mockUseConfig.saveConfig.mockReset()
+    mockUseConfig.saveConfig.mockResolvedValue({ success: true })
   })
 
   it('should render configuration form with all sections', () => {
@@ -72,7 +75,7 @@ describe('ConfigEditor', () => {
     
     expect(screen.getByText('Configuration Management')).toBeInTheDocument()
     expect(screen.getByText('Integration Settings')).toBeInTheDocument()
-    expect(screen.getByText('Connection Info')).toBeInTheDocument()
+    expect(screen.getByText('Archipelago Connection Info')).toBeInTheDocument()
     expect(screen.getByText('Streamer.bot Config')).toBeInTheDocument()
     expect(screen.getByText('Streamer.bot Actions')).toBeInTheDocument()
     expect(screen.getByText('Game Settings')).toBeInTheDocument()
@@ -175,6 +178,25 @@ describe('ConfigEditor', () => {
     await waitFor(() => {
       expect(screen.getByText('Failed to save configuration: Save failed')).toBeInTheDocument()
     })
+  })
+
+  it('should allow empty passwords for optional fields', async () => {
+    render(<ConfigEditor />)
+
+    const streamerbotPasswordInput = screen.getByLabelText(/Streamer\.bot Password/i)
+    await userEvent.clear(streamerbotPasswordInput)
+
+    const archipelagoPasswordInput = screen.getByLabelText(/Archipelago Password/i)
+    await userEvent.clear(archipelagoPasswordInput)
+
+    const saveButton = screen.getByText('Save Configuration')
+    await userEvent.click(saveButton)
+
+    await waitFor(() => {
+      expect(mockUseConfig.saveConfig).toHaveBeenCalled()
+    })
+
+    expect(screen.queryByText('Password is required for Streamer.bot')).not.toBeInTheDocument()
   })
 
   it('should reset form to original values on cancel', async () => {

@@ -35,10 +35,10 @@ export const validateConfig = (config) => {
       }
     }
 
-    if (!config.streamerbotConfig?.password?.trim()) {
+    if (config.streamerbotConfig?.password && !config.streamerbotConfig.password.trim()) {
       errors.streamerbotConfig = { 
         ...errors.streamerbotConfig, 
-        password: 'Password is required for Streamer.bot' 
+        password: 'Password cannot be empty spaces' 
       }
     }
   }
