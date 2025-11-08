@@ -11,8 +11,8 @@ React/Vite frontend for managing and monitoring the local Chatipelago client. It
 
 ### Integration Modes
 - `mixitup: true` → HTTP webhook server (port 1339)
-- `streamerbot: true` → WebSocket to Streamer.bot (`localhost:8014`)
-- Only one mode active at a time; Admin API on `8015` is always available
+- `streamerbot: true` → WebSocket to Streamer.bot (`localhost:8080`)
+- Only one chatbot active at a time; Admin API on `8015` is always available
 
 ### Tech Stack
 - React 18, Vite, Tailwind CSS
@@ -59,36 +59,3 @@ src/
 ```
 
 ### Please open an issue or find delilahisdidi on Discord if you have problems.
-
-### Yaml schema:
-```yaml
-items:
-  normal:
-    - item0
-    - item
-    - ...
-    - item62
-  trap:
-    - item197
-    - item198
-    - item199
-  filler:
-    - item200
-    - item201
-    - item202
-  prog:
-    - item300
-    - item301
-    - item302
- locations:
-   chatroom:
-    - loc0
-    - loc2
-    - loc3
-    - ...
-    - loc40
-  prog:
-    - loc50
-    - loc51
-    - loc59
-```
