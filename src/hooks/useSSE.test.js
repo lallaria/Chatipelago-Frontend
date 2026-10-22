@@ -11,7 +11,8 @@ const mockEventSource = {
   url: 'http://localhost:8015/api/console',
 }
 
-global.EventSource = vi.fn(() => mockEventSource)
+// Vitest 4 mocks invoked with `new` need a function implementation, not an arrow
+global.EventSource = vi.fn(function () { return mockEventSource })
 
 describe('useSSE Hook', () => {
   beforeEach(() => {

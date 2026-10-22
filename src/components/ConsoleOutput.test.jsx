@@ -50,7 +50,7 @@ describe('ConsoleOutput', () => {
     expect(screen.getByLabelText('Filter messages by level')).toBeInTheDocument()
   })
 
-  it('should display all messages by default', async () => {
+  it('should display all messages at debug level', async () => {
     const { useSSE } = await import('../hooks/useSSE')
     useSSE.mockReturnValue({
       isConnected: true,
@@ -59,7 +59,8 @@ describe('ConsoleOutput', () => {
     })
 
     render(<ConsoleOutput />)
-    
+    await userEvent.selectOptions(screen.getByLabelText('Filter messages by level'), 'debug')
+
     expect(screen.getByText('Chatipelago client started')).toBeInTheDocument()
     expect(screen.getByText('Connected to Archipelago server')).toBeInTheDocument()
     expect(screen.getByText('Error: Connection failed')).toBeInTheDocument()
@@ -154,7 +155,7 @@ describe('ConsoleOutput', () => {
 
     render(<ConsoleOutput />)
     
-    const autoScrollCheckbox = screen.getByLabelText('Auto-scroll to latest')
+    const autoScrollCheckbox = screen.getByLabelText('Auto-scroll')
     expect(autoScrollCheckbox).toBeChecked()
     
     await userEvent.click(autoScrollCheckbox)
@@ -170,16 +171,15 @@ describe('ConsoleOutput', () => {
     })
 
     render(<ConsoleOutput />)
-    
-    // Check that timestamps are displayed (they will be in local time format)
-    expect(screen.getByText('7:00:00 PM')).toBeInTheDocument()
-    expect(screen.getByText('7:00:01 PM')).toBeInTheDocument()
-    expect(screen.getByText('7:00:02 PM')).toBeInTheDocument()
-    expect(screen.getByText('7:00:03 PM')).toBeInTheDocument()
+    await userEvent.selectOptions(screen.getByLabelText('Filter messages by level'), 'debug')
+
+    for (const { timestamp } of mockMessages) {
+      expect(screen.getByText(new Date(timestamp).toLocaleTimeString())).toBeInTheDocument()
+    }
   })
 
 
-  it('should show message count', async () => {
+  it('should count only info and above under the default filter', async () => {
     const { useSSE } = await import('../hooks/useSSE')
     useSSE.mockReturnValue({
       isConnected: true,
@@ -188,8 +188,10 @@ describe('ConsoleOutput', () => {
     })
 
     render(<ConsoleOutput />)
-    
-    expect(screen.getByText('4 messages')).toBeInTheDocument()
+
+    expect(screen.getByLabelText('Filter messages by level')).toHaveValue('info')
+    expect(screen.getByText('2 messages')).toBeInTheDocument()
+    expect(screen.queryByText('Chatipelago client started')).not.toBeInTheDocument()
   })
 
   it('should handle empty message list', async () => {

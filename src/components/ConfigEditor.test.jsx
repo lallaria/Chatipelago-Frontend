@@ -68,6 +68,7 @@ describe('ConfigEditor', () => {
     mockUseConfig.saving = false
     mockUseConfig.saveConfig.mockReset()
     mockUseConfig.saveConfig.mockResolvedValue({ success: true })
+    global.fetch.mockResolvedValue({ ok: true, text: () => Promise.resolve('') })
   })
 
   it('should render configuration form with all sections', () => {
@@ -181,12 +182,11 @@ describe('ConfigEditor', () => {
   })
 
   it('should allow empty passwords for optional fields', async () => {
-    render(<ConfigEditor />)
+    const { container } = render(<ConfigEditor />)
 
-    const streamerbotPasswordInput = screen.getByLabelText(/Streamer\.bot Password/i)
+    // Labels have no htmlFor; inputs render in Archipelago, Streamer.bot order
+    const [archipelagoPasswordInput, streamerbotPasswordInput] = container.querySelectorAll('input[type="password"]')
     await userEvent.clear(streamerbotPasswordInput)
-
-    const archipelagoPasswordInput = screen.getByLabelText(/Archipelago Password/i)
     await userEvent.clear(archipelagoPasswordInput)
 
     const saveButton = screen.getByText('Save Configuration')
@@ -262,13 +262,14 @@ describe('ConfigEditor', () => {
     expect(screen.getByText('Error loading configuration: Failed to load configuration')).toBeInTheDocument()
   })
 
-  it('should disable save button when saving', () => {
+  it('should disable save buttons when saving', () => {
     mockUseConfig.saving = true
-    
+
     render(<ConfigEditor />)
-    
-    const saveButton = screen.getByText('Saving...')
-    expect(saveButton).toBeDisabled()
+
+    const saveButtons = screen.getAllByText('Saving...')
+    expect(saveButtons).toHaveLength(2)
+    for (const button of saveButtons) expect(button).toBeDisabled()
   })
 
   it('should disable save button when no changes', () => {

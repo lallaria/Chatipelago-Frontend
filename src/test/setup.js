@@ -14,10 +14,12 @@ global.console = {
 global.fetch = vi.fn()
 
 // Mock EventSource for SSE tests
-global.EventSource = vi.fn(() => ({
-  addEventListener: vi.fn(),
-  removeEventListener: vi.fn(),
-  close: vi.fn(),
-  readyState: 1,
-  url: 'http://localhost:8015/api/console',
-}))
+global.EventSource = vi.fn(function () {
+  return {
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    close: vi.fn(),
+    readyState: 1,
+    url: 'http://localhost:8015/api/console',
+  }
+})
